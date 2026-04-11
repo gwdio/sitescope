@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { startScreening, pollScreening } from "./lib/api";
 import type { Dossier } from "./lib/types";
 import { MOCK_DOSSIER } from "./lib/mockData";
+import { MOCK_DOSSIER as MOCK_DOSSIER_2 } from "./lib/mockData2";
 import InputView from "./components/InputView";
 import LoadingView from "./components/LoadingView";
 import DossierView from "./components/DossierView";
@@ -34,6 +35,10 @@ export default function App() {
       if (e.key === "=") {
         stopPolling();
         setDossier(MOCK_DOSSIER);
+        setView("dossier");
+      } else if (e.key === "-") {
+        stopPolling();
+        setDossier(MOCK_DOSSIER_2 as Dossier);
         setView("dossier");
       }
     }
