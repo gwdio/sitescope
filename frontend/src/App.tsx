@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { startScreening, pollScreening } from "./lib/api";
 import type { Dossier } from "./lib/types";
+import { MOCK_DOSSIER } from "./lib/mockData";
 import InputView from "./components/InputView";
 import LoadingView from "./components/LoadingView";
 import DossierView from "./components/DossierView";
@@ -26,6 +27,19 @@ export default function App() {
   }
 
   useEffect(() => () => stopPolling(), []);
+
+  useEffect(() => {
+    if (view !== "loading") return;
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "=") {
+        stopPolling();
+        setDossier(MOCK_DOSSIER);
+        setView("dossier");
+      }
+    }
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [view]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
