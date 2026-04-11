@@ -60,7 +60,7 @@ interface Dossier {
 
 ### Design
 
-Enterprise-dense. Paper feel, not SaaS. No gradients, no shadows, borders = structure.
+Enterprise-dense. Paper feel, not SaaS. No gradients, no shadows, borders do structure.
 
 **Palette:**
 - `#FAFAF9` bg · `#F3F2EE` surface · `#E5E4DF` border
@@ -121,7 +121,7 @@ src/
   signals.ts       — signal → color/label map
 ```
 
-Single file ok for hackathon.
+Single file acceptable for hackathon.
 
 ### Skip
 
