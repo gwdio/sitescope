@@ -1,7 +1,9 @@
 import os
+import json
 import asyncio
+from typing import List, Literal
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from subconscious import Subconscious
@@ -24,6 +26,55 @@ class ScreenRequest(BaseModel):
     requirements: str
 
 
+# ── Dossier schema (Pydantic) ─────────────────────────────
+
+
+class PowerAssessment(BaseModel):
+    summary: str
+    signal: Literal["favorable", "mixed", "constrained"]
+
+
+class CommunityAssessment(BaseModel):
+    summary: str
+    signal: Literal["supportive", "mixed", "hostile"]
+
+
+class TaxAssessment(BaseModel):
+    summary: str
+    signal: Literal["strong_incentives", "moderate_incentives", "weak_incentives"]
+
+
+class HazardAssessment(BaseModel):
+    summary: str
+    signal: Literal["low_risk", "moderate_risk", "high_risk"]
+
+
+class CandidateMarket(BaseModel):
+    rank: int
+    market_name: str
+    overall_viability: Literal["strong", "moderate", "cautious"]
+    power: PowerAssessment
+    community_sentiment: CommunityAssessment
+    tax_and_incentives: TaxAssessment
+    natural_hazards: HazardAssessment
+    connectivity: str
+    recent_activity: str
+    key_risks: List[str]
+    next_steps: str
+
+
+class MarketToAvoid(BaseModel):
+    market_name: str
+    reason: str
+
+
+class SiteScreeningDossier(BaseModel):
+    executive_summary: str
+    candidate_markets: List[CandidateMarket]
+    markets_to_avoid: List[MarketToAvoid]
+    methodology_note: str
+
+
 # ── Agent configuration ───────────────────────────────────
 
 TOOLS = [
@@ -34,182 +85,42 @@ TOOLS = [
 ]
 
 AGENT_PROMPT = """\
-You are SiteScope, a data center site screening analyst. Your job is to
-produce a preliminary market screening dossier for a data center
-development team.
+You are SiteScope, a data center site screening analyst.
+Task: research and rank 3-5 candidate US markets for user's requirements.
 
-The user will provide their requirements. Research and rank 3-5 candidate
-US markets that best fit those requirements.
+## Research Steps (do ALL, 1-2 searches each)
 
-## Research Process
+1. POWER & GRID: power availability, utility capacity, interconnection queues, grid expansion plans. Flag markets where timelines exceed user target.
+2. COMMUNITY SENTIMENT: news on opposition, moratoriums, zoning battles, protests. Also find supportive markets.
+3. TAX & INCENTIVES: state data center tax exemptions (sales/use tax on equipment), property tax abatements, incentive programs.
+4. NATURAL HAZARDS: flood, seismic, wildfire, tornado/hurricane risk. Water availability in arid regions. Climate for cooling.
+5. CONNECTIVITY: internet exchange points, carrier-neutral facilities, fiber route diversity.
+6. RECENT ACTIVITY: active operators/developers, project announcements, campus developments underway.
+7. REGULATORY: pending legislation, zoning changes, utility rate restructuring, political posture toward data centers.
 
-Follow this sequence for thorough, multi-source analysis:
+## Rules
 
-1. POWER & GRID: Search for current power availability, utility capacity,
-   interconnection queue status, and grid infrastructure in candidate
-   regions. Look for recent utility announcements, substation projects,
-   and grid expansion plans. Note any markets where interconnection
-   timelines exceed the user's target.
+- 2025-2026 info only. Older data is unreliable.
+- Distinguish primary markets (NoVA, Phoenix, Dallas) from emerging ones.
+- Be honest about limitations (MW at specific substations needs utility engagement).
+- For each market: what should team investigate NEXT.
+- Rank by overall viability, weighted by user priorities.
+- Flag markets where recent events make them riskier than they appear.
+- Also identify 1-3 markets to AVOID with reasons.
 
-2. COMMUNITY SENTIMENT: Search news for data center opposition,
-   moratoriums, zoning battles, canceled projects, and community protests
-   in each candidate market. Also search for markets where local officials
-   have been publicly supportive.
+## CRITICAL: Output Instructions
 
-3. TAX & INCENTIVES: Search for state-level data center tax exemptions
-   (especially sales/use tax on equipment), property tax abatements, and
-   economic development incentive programs.
+After completing research, you MUST produce your final structured answer.
+Your answer MUST be a valid JSON object matching the answerFormat schema with:
+- "executive_summary": 2-3 sentence overview with top recommendation
+- "candidate_markets": array of 3-5 ranked markets, each with power, community_sentiment, tax_and_incentives, natural_hazards (all with summary + signal), plus connectivity, recent_activity, key_risks, next_steps
+- "markets_to_avoid": array of markets to skip with reasons
+- "methodology_note": brief note on research methods and limitations
 
-4. NATURAL HAZARDS & CLIMATE: Assess flood risk, seismic activity,
-   wildfire exposure, tornado/hurricane corridors, and ambient climate
-   conditions. Note water availability concerns in arid regions.
-
-5. CONNECTIVITY: Check for proximity to major internet exchange points,
-   carrier-neutral facilities, and diverse fiber routes.
-
-6. RECENT DEVELOPMENT ACTIVITY: Search for which operators and developers
-   are active in each market, recent project announcements, and any
-   large-scale campus developments underway or planned.
-
-7. REGULATORY & POLITICAL LANDSCAPE: Search for pending legislation
-   affecting data centers, recent zoning changes, utility rate
-   restructuring for large loads, and the general political posture
-   toward data center development.
-
-## Important Guidelines
-
-- Focus on CURRENT information (2025-2026). The data center landscape is
-  changing rapidly and older information may be outdated.
-- Clearly distinguish between established primary markets (NoVA, Phoenix,
-  Dallas) and emerging secondary/tertiary markets. Secondary markets may
-  offer better power availability but less fiber infrastructure.
-- Be honest about limitations. Specific MW availability at a given
-  substation requires direct utility engagement. Community sentiment from
-  news coverage captures public signals but not private negotiations.
-- For each market, identify what the development team should investigate
-  NEXT — this dossier is a screening tool, not a final recommendation.
-- Rank markets by overall viability considering ALL factors weighted by
-  the user's stated priorities.
-- Always flag markets where recent events (moratoriums, cancellations,
-  political shifts) make them riskier than they might appear on paper.
+Do NOT end without producing the structured answer. The answer is the entire point.
 
 ## User Requirements
 {{requirements}}"""
-
-ANSWER_FORMAT = {
-    "type": "object",
-    "title": "SiteScreeningDossier",
-    "properties": {
-        "executive_summary": {
-            "type": "string",
-            "description": "2-3 sentence overview of screening results and top recommendation",
-        },
-        "candidate_markets": {
-            "type": "array",
-            "description": "Ranked list of 3-5 candidate markets, best first",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "rank": {
-                        "type": "integer",
-                        "description": "1 = best candidate",
-                    },
-                    "market_name": {
-                        "type": "string",
-                        "description": "Metro area or region name",
-                    },
-                    "overall_viability": {
-                        "type": "string",
-                        "enum": ["strong", "moderate", "cautious"],
-                    },
-                    "power": {
-                        "type": "object",
-                        "properties": {
-                            "summary": {"type": "string"},
-                            "signal": {
-                                "type": "string",
-                                "enum": ["favorable", "mixed", "constrained"],
-                            },
-                        },
-                        "required": ["summary", "signal"],
-                    },
-                    "community_sentiment": {
-                        "type": "object",
-                        "properties": {
-                            "summary": {"type": "string"},
-                            "signal": {
-                                "type": "string",
-                                "enum": ["supportive", "mixed", "hostile"],
-                            },
-                        },
-                        "required": ["summary", "signal"],
-                    },
-                    "tax_and_incentives": {
-                        "type": "object",
-                        "properties": {
-                            "summary": {"type": "string"},
-                            "signal": {
-                                "type": "string",
-                                "enum": [
-                                    "strong_incentives",
-                                    "moderate_incentives",
-                                    "weak_incentives",
-                                ],
-                            },
-                        },
-                        "required": ["summary", "signal"],
-                    },
-                    "natural_hazards": {
-                        "type": "object",
-                        "properties": {
-                            "summary": {"type": "string"},
-                            "signal": {
-                                "type": "string",
-                                "enum": ["low_risk", "moderate_risk", "high_risk"],
-                            },
-                        },
-                        "required": ["summary", "signal"],
-                    },
-                    "connectivity": {"type": "string"},
-                    "recent_activity": {"type": "string"},
-                    "key_risks": {"type": "array", "items": {"type": "string"}},
-                    "next_steps": {"type": "string"},
-                },
-                "required": [
-                    "rank",
-                    "market_name",
-                    "overall_viability",
-                    "power",
-                    "community_sentiment",
-                    "tax_and_incentives",
-                    "natural_hazards",
-                    "connectivity",
-                    "recent_activity",
-                    "key_risks",
-                    "next_steps",
-                ],
-            },
-        },
-        "markets_to_avoid": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "market_name": {"type": "string"},
-                    "reason": {"type": "string"},
-                },
-                "required": ["market_name", "reason"],
-            },
-        },
-        "methodology_note": {"type": "string"},
-    },
-    "required": [
-        "executive_summary",
-        "candidate_markets",
-        "markets_to_avoid",
-        "methodology_note",
-    ],
-}
 
 # ── Mock data ─────────────────────────────────────────────
 
@@ -567,20 +478,44 @@ async def screen(body: ScreenRequest):
                 input={
                     "instructions": prompt,
                     "tools": TOOLS,
-                    "answerFormat": ANSWER_FORMAT,
+                    "answerFormat": SiteScreeningDossier,
                 },
                 options={"await_completion": True},
             ),
             timeout=900,
         )
 
-        dossier = run.result.answer
-        if not dossier or "candidate_markets" not in dossier:
+        answer = run.result.answer
+
+        # SDK returns answer as string — parse if needed
+        if isinstance(answer, str) and answer.strip():
+            try:
+                dossier = json.loads(answer)
+            except json.JSONDecodeError:
+                return JSONResponse(
+                    status_code=502,
+                    content={
+                        "error": "agent_failure",
+                        "detail": "Response is not valid JSON",
+                    },
+                )
+        elif isinstance(answer, dict):
+            dossier = answer
+        else:
             return JSONResponse(
                 status_code=502,
                 content={
                     "error": "agent_failure",
                     "detail": "Response missing required fields",
+                },
+            )
+
+        if "candidate_markets" not in dossier:
+            return JSONResponse(
+                status_code=502,
+                content={
+                    "error": "agent_failure",
+                    "detail": "Response missing candidate_markets",
                 },
             )
 
