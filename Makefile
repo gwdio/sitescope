@@ -12,7 +12,8 @@ dev:
 	make -j2 dev-backend dev-frontend
 
 dev-backend:
-	@if [ -n "$$CONDA_PREFIX" ]; then \
+	@set -a && . ./.env && set +a && \
+	if [ -n "$$CONDA_PREFIX" ]; then \
 		cd backend && uvicorn main:app --reload --port 8000; \
 	else \
 		cd backend && .venv/bin/uvicorn main:app --reload --port 8000; \
