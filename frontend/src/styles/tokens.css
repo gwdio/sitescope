@@ -1,0 +1,76 @@
+:root {
+  /* Backgrounds */
+  --bg-page:    #FAFAF9;
+  --bg-surface: #F3F2EE;
+  --bg-white:   #FFFFFF;
+
+  /* Borders */
+  --border: #E5E4DF;
+
+  /* Text */
+  --text-primary:   #1A1A18;
+  --text-secondary: #6B6B66;
+  --text-tertiary:  #9C9C96;
+
+  /* Signals — green */
+  --signal-green-text: #1A7A3A;
+  --signal-green-bg:   #E8F5EC;
+
+  /* Signals — amber */
+  --signal-amber-text: #92600E;
+  --signal-amber-bg:   #FDF6E3;
+
+  /* Signals — red */
+  --signal-red-text: #A3261B;
+  --signal-red-bg:   #FDEEED;
+
+  /* Accent */
+  --accent:       #2A5F2E;
+  --accent-light: #F0FAF2;
+
+  /* Typography */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body:    'Instrument Sans', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', 'Courier New', monospace;
+
+  /* Spacing (base 4px) */
+  --sp-1:  4px;
+  --sp-2:  8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-5:  20px;
+  --sp-6:  24px;
+  --sp-8:  32px;
+  --sp-12: 48px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 3px;
+  padding: 10px 24px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.btn-primary:hover {
+  background: #1e4a22;
+}
