@@ -10,7 +10,7 @@
 
 | Layer | Choice |
 |---|---|
-| Framework | React 18+ (Vite or Next.js) |
+| Framework | React 18+ with Vite and TypeScript |
 | Styling | CSS Modules or inline styles — no utility framework. All values from Spec 1 design tokens. |
 | Fonts | Google Fonts: `Fraunces` (serif display), `Instrument Sans` (body), `JetBrains Mono` (mono) |
 | State | `useState` / `useReducer` — no external state library |
@@ -48,7 +48,7 @@ Centered card on `var(--bg-page)` background. `max-width: 520px`.
 | Pre-fill | Demo scenario text from Spec 1 §8 |
 | Submit button | `background: var(--accent)`, `color: #FFF`, `--font-body` 13px, weight 600, `border-radius: 3px`, `padding: 10px 24px`. Hover: slight darken. Label: "Run Screening" |
 
-On submit: POST to `{NEXT_PUBLIC_API_URL}/api/screen` with `{ requirements }`. If `NEXT_PUBLIC_USE_MOCK=true`, fetch from `/api/screen/mock` instead. Transition to loading state.
+On submit: POST to `${import.meta.env.VITE_API_URL}/api/screen` with `{ requirements }`. If `import.meta.env.VITE_USE_MOCK === "true"`, fetch from `/api/screen/mock` or load the local `mockData.ts` object instead. Transition to loading state.
 
 ---
 
@@ -197,22 +197,24 @@ For dimensions 5–6, render label + summary text only — no dot, no signal lab
 Single-file implementation is acceptable. If splitting:
 
 ```
-src/
-  App.jsx              — state machine (input → loading → dossier)
+frontend/src/
+  App.tsx              — state machine (input → loading → dossier)
   components/
-    InputView.jsx      — textarea + submit
-    LoadingView.jsx    — "Researching markets..." indicator
-    DossierView.jsx    — split-panel shell
-    LeftPanel.jsx      — summary + matrix + deprioritize
-    RightPanel.jsx     — market detail, dimension blocks, risks, next steps
-    SignalDot.jsx      — 8px colored circle + tooltip
-    ViabilityBadge.jsx — colored pill
+    InputView.tsx      — textarea + submit
+    LoadingView.tsx    — "Researching markets..." indicator
+    DossierView.tsx    — split-panel shell
+    LeftPanel.tsx      — summary + matrix + deprioritize
+    RightPanel.tsx     — market detail, dimension blocks, risks, next steps
+    SignalDot.tsx      — 8px colored circle + tooltip
+    ViabilityBadge.tsx — colored pill
   lib/
-    signals.js         — SIGNALS, SIGNAL_COLORS, VIABILITY maps (from Spec 1)
-    api.js             — fetch wrapper for POST /api/screen
-    parseMarketName.js — region parsing utility (from Spec 1)
+    signals.ts         — SIGNALS, SIGNAL_COLORS, VIABILITY maps (from Spec 1)
+    api.ts             — fetch wrapper for POST /api/screen
+    parseMarketName.ts — region parsing utility (from Spec 1)
   styles/
     tokens.css         — CSS custom properties (from Spec 1)
+  mockData.ts          — fallback dossier (from Spec 2 §7)
+  ExportDossier.ts     — HTML template + download (from Spec 4)
 ```
 
 ---
@@ -221,7 +223,7 @@ src/
 
 ### Input View
 - [ ] Renders centered card with textarea pre-filled with demo text.
-- [ ] Submit calls `POST /api/screen` (or loads mock when `NEXT_PUBLIC_USE_MOCK=true`).
+- [ ] Submit calls `POST /api/screen` (or loads mock when `VITE_USE_MOCK=true`).
 - [ ] Loading state displays "Researching markets..." text.
 
 ### Dossier View
