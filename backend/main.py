@@ -560,36 +560,16 @@ async def screen(body: ScreenRequest):
     prompt = AGENT_PROMPT.replace("{{requirements}}", body.requirements)
 
     try:
-        run = await asyncio.wait_for(
-            asyncio.to_thread(
-                get_client().run,
-                engine="tim-claude",
-                input={
-                    "instructions": prompt,
-                    "tools": TOOLS,
-                    "answerFormat": ANSWER_FORMAT,
-                },
-                options={"await_completion": True},
-            ),
-            timeout=900,
+        run = await asyncio.to_thread(
+            get_client().run,
+            engine="tim-claude",
+            input={
+                "instructions": prompt,
+                "tools": TOOLS,
+                "answerFormat": ANSWER_FORMAT,
+            },
         )
-
-        dossier = run.result.answer
-        if not dossier or "candidate_markets" not in dossier:
-            return JSONResponse(
-                status_code=502,
-                content={
-                    "error": "agent_failure",
-                    "detail": "Response missing required fields",
-                },
-            )
-
-        return dossier
-
-    except asyncio.TimeoutError:
-        return JSONResponse(
-            status_code=504, content={"error": "agent_timeout"}
-        )
+        return {"run_id": run.run_id}
     except Exception as err:
         return JSONResponse(
             status_code=502,
@@ -600,3 +580,37 @@ async def screen(body: ScreenRequest):
 @app.get("/api/screen/mock")
 def screen_mock():
     return MOCK_DOSSIER
+
+
+@app.get("/api/screen/{run_id}")
+async def screen_status(run_id: str):
+    try:
+        status_obj = await asyncio.to_thread(get_client().get, run_id)
+    except Exception as err:
+        return JSONResponse(
+            status_code=502,
+            content={"error": "agent_failure", "detail": str(err)},
+        )
+
+    status = status_obj.status
+
+    if status in ("queued", "running"):
+        return {"status": status}
+
+    if status == "succeeded":
+        dossier = status_obj.result and status_obj.result.answer
+        if not dossier or "candidate_markets" not in dossier:
+            return JSONResponse(
+                status_code=502,
+                content={
+                    "error": "agent_failure",
+                    "detail": "Response missing required fields",
+                },
+            )
+        return {"status": "succeeded", "dossier": dossier}
+
+    # "failed" | "canceled" | "timed_out"
+    return JSONResponse(
+        status_code=502,
+        content={"error": "agent_failure", "detail": f"Run ended with status: {status}"},
+    )

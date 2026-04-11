@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { screenMarkets } from "./lib/api";
+import React, { useState, useEffect, useRef } from "react";
+import { startScreening, pollScreening } from "./lib/api";
 import type { Dossier } from "./lib/types";
 import InputView from "./components/InputView";
 import LoadingView from "./components/LoadingView";
@@ -15,22 +15,52 @@ export default function App() {
   const [requirements, setRequirements] = useState(DEMO_TEXT);
   const [dossier, setDossier] = useState<Dossier | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loadingStatus, setLoadingStatus] = useState<"queued" | "running">("queued");
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  function stopPolling() {
+    if (pollRef.current !== null) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+  }
+
+  useEffect(() => () => stopPolling(), []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setLoadingStatus("queued");
     setView("loading");
+
+    let runId: string;
     try {
-      const result = await screenMarkets(requirements);
-      setDossier(result);
-      setView("dossier");
+      runId = await startScreening(requirements);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
       setView("input");
+      return;
     }
+
+    pollRef.current = setInterval(async () => {
+      try {
+        const result = await pollScreening(runId);
+        if (result.status === "succeeded") {
+          stopPolling();
+          setDossier(result.dossier);
+          setView("dossier");
+        } else {
+          setLoadingStatus(result.status);
+        }
+      } catch (err) {
+        stopPolling();
+        setError(err instanceof Error ? err.message : "Unknown error");
+        setView("input");
+      }
+    }, 2000);
   }
 
-  if (view === "loading") return <LoadingView />;
+  if (view === "loading") return <LoadingView status={loadingStatus} />;
   if (view === "dossier" && dossier) return <DossierView dossier={dossier} requirements={requirements} />;
   return (
     <InputView
@@ -41,4 +71,3 @@ export default function App() {
     />
   );
 }
-

@@ -1,4 +1,8 @@
-export default function LoadingView() {
+interface Props {
+  status: "queued" | "running";
+}
+
+export default function LoadingView({ status }: Props) {
   return (
     <div
       style={{
@@ -17,7 +21,7 @@ export default function LoadingView() {
           margin: 0,
         }}
       >
-        Researching markets...
+        {status === "queued" ? "Queued..." : "Researching markets..."}
       </p>
     </div>
   );
