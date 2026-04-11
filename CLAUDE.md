@@ -1,12 +1,12 @@
 # SiteScope
 
-AI-powered data center site screening agent. Takes requirements, returns ranked market dossier.
+AI datacenter site screener. Input: requirements. Output: ranked market dossier.
 
 ## Stack
 
-- **Backend**: Python / FastAPI (`backend/`)
-- **Frontend**: React + Vite + TypeScript (`frontend/`)
-- **AI**: Subconscious SDK (`subconscious-sdk`) — engine `tim-claude`
+- Backend: Python / FastAPI (`backend/`)
+- Frontend: React + Vite + TypeScript (`frontend/`)
+- AI: Subconscious SDK (`subconscious-sdk`) — engine `tim-claude`
 
 ## Subconscious SDK (Python)
 
@@ -60,71 +60,69 @@ interface Dossier {
 
 ### Design
 
-Tone: established enterprise tooling — Bloomberg Terminal meets consulting deliverable. Not SaaS, not startup dashboard.
+Enterprise-dense. Paper feel, not SaaS. No gradients, no shadows, borders do structure.
 
-- **Background**: `#FAFAF9` (warm off-white, like paper)
-- **Surface**: `#F3F2EE` (cards, panels)
-- **Border**: `#E5E4DF`
-- **Text**: `#1A1A18` / `#6B6B66` / `#9C9C96`
-- **Accent**: `#2A5F2E` (dark green — branding, CTAs)
+**Palette:**
+- `#FAFAF9` bg · `#F3F2EE` surface · `#E5E4DF` border
+- `#1A1A18` text · `#6B6B66` secondary · `#9C9C96` tertiary
+- `#2A5F2E` accent (green, CTAs)
 
-No gradients, no glows. Borders do structural work, not shadows.
+**Signals:**
 
-**Signal colors:**
-
-| Signal | Text | Background |
-|--------|------|------------|
+| | Text | Bg |
+|---|---|---|
 | Favorable / Supportive / Strong / Low Risk | `#1A7A3A` | `#E8F5EC` |
 | Mixed / Moderate | `#92600E` | `#FDF6E3` |
 | Constrained / Hostile / Weak / High Risk | `#A3261B` | `#FDEEED` |
 
-No emoji. Signals communicated via colored text labels + 8px dot indicators.
+No emoji. Signals = colored label + 8px dot.
 
-**Fonts:** serif display (Fraunces/Newsreader) + humanist sans (Instrument Sans/Satoshi) + monospace (JetBrains Mono) for labels/metadata.
+**Fonts:** serif display (Fraunces/Newsreader) + sans body (Instrument Sans/Satoshi) + mono (JetBrains Mono) for labels/metadata.
 
 ### Layout
 
-Split-panel, max-width 1120px centered:
+Max-width 1120px centered:
 
 ```
-┌─────────────────────────────────────────┐
-│  Header (52px) — name · query params · Export button  │
-├──────────────────┬──────────────────────┤
-│  Left (420px)    │  Right (flex, scroll) │
-│  fixed           │                       │
-│  · Summary       │  · Selected market    │
-│  · Signal matrix │    detail (all dims)  │
-│  · Avoid list    │  · Risks              │
-│                  │  · Next steps         │
-├──────────────────┴──────────────────────┤
-│  Footer (methodology note)              │
-└─────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────┐
+│ Header (52px): SiteScope · query params · Export btn   │
+├──────────────────┬─────────────────────────────────────┤
+│ Left 420px fixed │ Right flex, scrollable              │
+│ · Summary        │ · Market detail (all dims)          │
+│ · Signal matrix  │ · Key risks (amber)                 │
+│ · Avoid list     │ · Next steps (green card #F0FAF2)   │
+├──────────────────┴─────────────────────────────────────┤
+│ Footer: methodology note                               │
+└────────────────────────────────────────────────────────┘
 ```
 
-Left panel signal matrix: markets as rows, dimensions (Power/Community/Incentives/Hazards) as columns with dot indicators. Row click selects market → updates right panel. Selected row: 3px left border in accent green.
+Signal matrix: markets = rows, dims (Power/Community/Incentives/Hazards) = cols, dot per cell. Click row → update right panel. Selected: 3px left border accent green.
 
-Right panel market detail order: Power & Grid → Community Sentiment → Tax & Incentives → Natural Hazards → Connectivity → Recent Activity → Key Risks (amber) → Next Steps (green card `#F0FAF2`).
+Right panel dim order: Power → Community → Tax & Incentives → Natural Hazards → Connectivity → Recent Activity → Key Risks → Next Steps.
 
-### Input State
+### States
 
-Before dossier loads: centered card, `<textarea>` pre-filled with demo requirements, "Run Screening" button (accent green). Loading: plain text "Researching markets..." — no animation needed.
+**Input:** centered card, `<textarea>` pre-filled, "Run Screening" button (accent green).
+**Loading:** "Researching markets..." plain text. No animation.
+**Dossier:** split-panel view above.
 
 ### Export
 
-Header button → downloads `SiteScope_Dossier_YYYY-MM-DD.html`. Self-contained HTML (inline CSS + Google Fonts links). Linear scroll layout — build from template literal, not DOM clone. Includes `@media print` with `page-break-before: always` per market section.
+Header btn → `SiteScope_Dossier_YYYY-MM-DD.html`. Self-contained (inline CSS + Google Fonts). Build from template literal, not DOM clone. `@media print` + `page-break-before: always` per market.
 
-### File Structure
+### Files
 
 ```
 src/
-  App.tsx            — input / loading / dossier view routing
-  DossierView.tsx    — split-panel display
-  ExportDossier.ts   — HTML template + download trigger
-  mockData.ts        — hardcoded fallback dossier
-  signals.ts         — signal → color/label map
+  App.tsx          — view routing (input / loading / dossier)
+  DossierView.tsx  — split-panel
+  ExportDossier.ts — HTML template + download
+  mockData.ts      — fallback dossier
+  signals.ts       — signal → color/label map
 ```
 
+Single file acceptable for hackathon.
 
-### Do Not Build
+### Skip
 
-- Auth, saved history, editable fields, map visualization, dark mode, animations beyond hover
+Auth, history, editable fields, map, dark mode, animations (hover OK).
