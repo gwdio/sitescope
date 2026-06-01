@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+debug_run.py
+test_agent_live.py
+.env
+.env.*
