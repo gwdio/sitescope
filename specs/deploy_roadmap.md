@@ -15,15 +15,24 @@ Before anything else and before the repo is linked publicly: rotate the `SUBCONS
 ### 1.1 Architecture: Lambda (container) + S3/CloudFront
 
 - **Frontend**: Build with `vite build`, upload to S3, serve via CloudFront.
-- **Backend**: Wrap FastAPI with [Mangum](https://github.com/jordaneremieff/mangum), deploy as a container-based Lambda (see 1.3) behind a Lambda Function URL.
+- **Backend**: Wrap FastAPI with [Mangum](https://github.com/jordaneremieff/mangum), deploy as a container-based Lambda behind a Lambda Function URL.
 
 CloudFront does path-routing: `/api/*` forwards to the Lambda Function URL origin, everything else serves from S3. This avoids CORS entirely — no header config needed.
 
-**Cost model**: In production, no env-var API key fallback exists (see 1.2) — users must supply their own key. This means no runaway Subconscious quota burn, no WAF needed, and the infrastructure stays in the free tier (~$0–2/mo S3+CloudFront, Lambda near-zero for low usage).
+**Cost model**: In production, no env-var API key fallback exists (see 1.3) — users must supply their own key. This means no runaway Subconscious quota burn, no WAF needed, and the infrastructure stays in the free tier (~$0–2/mo S3+CloudFront, Lambda near-zero for low usage).
 
-### 1.2 Async Backend Refactor (Hard Prerequisite)
+### 1.2 Lambda Packaging — Container Image
 
-This is the most load-bearing change in the whole plan. The current `/api/screen` POST blocks synchronously for up to 900s. **CloudFront's origin response timeout maxes out at 60s by default (180s with a quota increase) — a synchronous 900s agent run will always 504, regardless of Lambda's timeout setting.** The async refactor is not optional.
+Default to a container-based Lambda from the start. FastAPI + Mangum + Pydantic + the Subconscious SDK will likely hit or exceed the 50MB zip limit anyway, and the container path is more predictable.
+
+- Write a `backend/Dockerfile` using AWS's `public.ecr.aws/lambda/python:3.12` base.
+- Set `CMD ["main.lambda_handler"]`.
+- Add `mangum` to `requirements.txt`, add `lambda_handler = Mangum(app)` in `main.py`.
+- Set Lambda timeout to 60s — with the async refactor (1.3), individual invocations are short.
+
+### 1.3 Async Backend Refactor (Must Complete Before Deploy)
+
+The current `/api/screen` POST blocks synchronously for up to 900s. **CloudFront's origin response timeout maxes out at 60s by default (180s with a quota increase) — a synchronous 900s agent run will always 504, regardless of Lambda's timeout setting.** This refactor is not optional.
 
 Refactor to:
 
@@ -34,15 +43,7 @@ Refactor to:
 
 **No env-var key fallback in production.** The `ScreenRequest` body must include an `api_key` field. The backend instantiates `Subconscious(api_key=...)` per-request using the user-supplied key. If no key is provided, return 400. This simultaneously eliminates quota-burn risk, abuse surface, and the need for rate limiting.
 
-### 1.3 Lambda Packaging — Container Image
-
-Default to a container-based Lambda from the start. FastAPI + Mangum + Pydantic + the Subconscious SDK will likely hit or exceed the 50MB zip limit anyway, and the container path is more predictable.
-
-- Write a `backend/Dockerfile` using AWS's `public.ecr.aws/lambda/python:3.12` base.
-- Set `CMD ["main.lambda_handler"]`.
-- Add `mangum` to `requirements.txt`, add `lambda_handler = Mangum(app)` in `main.py`.
-- Push to ECR, deploy as a Lambda function. Set timeout to 60s (matching CloudFront max) — with the async refactor, individual invocations are short.
-
+1.2 and 1.3 are independent of each other and can be done in parallel. Both must be complete before the infra steps below are functional end-to-end.
 
 ### 1.4 Frontend Build + S3
 
