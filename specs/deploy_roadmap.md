@@ -32,16 +32,46 @@ Default to a container-based Lambda from the start. FastAPI + Mangum + Pydantic 
 
 ### 1.3 Async Backend Refactor (Must Complete Before Deploy)
 
-The current `/api/screen` POST blocks synchronously for up to 900s. **CloudFront's origin response timeout maxes out at 60s by default (180s with a quota increase) — a synchronous 900s agent run will always 504, regardless of Lambda's timeout setting.** This refactor is not optional.
+The current `/api/screen` POST blocks synchronously for up to 900s. **CloudFront's origin response timeout maxes out at 60s — a synchronous 900s agent run will always 504.** This refactor is not optional.
+
+#### A. SDK Migration (one breaking change)
+
+The native `subconscious-sdk` still exists and is the right fit — `client.run` / `client.get` / `client.wait`, `runId`, and `answerFormat` are all still present. **Do not swap to the OpenAI-compat layer.** The SDK gives you the run lifecycle natively and keeps `main.py` changes minimal.
+
+The only breaking change is the engine name: **`tim-claude` is no longer valid.** Verify the correct engine identifier in the Subconscious dashboard before writing the refactored code. The chat-compat model is `subconscious/tim-qwen3.6-27b`; the SDK `engine=` parameter may use a different identifier — check both.
+
+Everything else (`answerFormat`, `TOOLS` shape, `result.answer`) stays as-is.
+
+No DynamoDB needed. Subconscious is the source of truth for run state; the backend is a thin proxy.
+
+#### B. Route Refactor
+
+Confirmed SDK behavior:
+- `client.run(..., options={"await_completion": False})` → returns immediately with `run.runId`
+- `client.get(run_id)` → status is one of `queued | running | succeeded | failed | canceled | timed_out`
+- On success: `run.result.answer` is the structured dossier; `run.result.reasoning` is the trace (ignore for now)
 
 Refactor to:
 
-1. **POST `/api/screen`**: Call Subconscious with `await_completion: False`. Return the Subconscious-native `run_id` immediately.
-2. **GET `/api/screen/{run_id}`**: Forward the poll directly to the Subconscious status endpoint; translate the response to the existing `PollResult` shape the frontend already expects.
+1. **POST `/api/screen`**: Call `client.run` with `await_completion: False`, engine updated. Return `{"run_id": run.runId}` immediately. Lambda exits in under 1s.
+2. **GET `/api/screen/{run_id}`**: Call `client.get(run_id)`. Map status → `PollResult` shape the frontend expects:
+   - `queued | running` → `{"status": "running"}`
+   - `succeeded` → `{"status": "succeeded", "dossier": run.result.answer}`
+   - `failed | canceled | timed_out` → 502 with `{"error": "agent_failure"}`
+3. **Cancel support**: The SDK has `client.cancel(run_id)`. Wire to `DELETE /api/screen/{run_id}`. Feeds Phase 4.3's cancel button with no extra infra.
 
-**First, verify the SDK**: Confirm that `await_completion: False` returns a pollable `run_id` from Subconscious. If it does, no storage layer is needed at all — the client holds the `run_id` and polls the backend, which proxies to Subconscious. If the SDK doesn't support async polling natively, fall back to a DynamoDB table (store `run_id → status`) and have the backend poll Subconscious on the client's behalf.
+#### C. User-Provided API Key
 
-**No env-var key fallback in production.** The `ScreenRequest` body must include an `api_key` field. The backend instantiates `Subconscious(api_key=...)` per-request using the user-supplied key. If no key is provided, return 400. This simultaneously eliminates quota-burn risk, abuse surface, and the need for rate limiting.
+**No env-var key fallback in production.** Changes to `main.py`:
+
+- Add `api_key: str` to `ScreenRequest`.
+- Instantiate the client per-request: `OpenAI(api_key=request.api_key, base_url="https://api.subconscious.dev/v1")`.
+- Remove `_client` singleton and `get_client()` entirely.
+- Return 400 if `api_key` is missing or empty.
+
+This eliminates quota-burn risk, abuse surface, and the need for rate limiting.
+
+---
 
 1.2 and 1.3 are independent of each other and can be done in parallel. Both must be complete before the infra steps below are functional end-to-end.
 
