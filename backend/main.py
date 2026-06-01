@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from subconscious import Subconscious
+from mangum import Mangum
 
 app = FastAPI()
 
@@ -485,6 +486,7 @@ async def screen(body: ScreenRequest):
             timeout=900,
         )
 
+        assert run.result
         answer = run.result.answer
 
         # SDK returns answer as string — parse if needed
@@ -569,3 +571,6 @@ async def screen_status(run_id: str):
         status_code=502,
         content={"error": "agent_failure", "detail": f"Run ended with status: {status}"},
     )
+
+
+lambda_handler = Mangum(app)
