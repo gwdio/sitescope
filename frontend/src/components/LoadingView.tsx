@@ -2,17 +2,37 @@ import React from "react";
 
 export interface LoadingViewProps {
   elapsed: number;
-  thinking: string;
+  complete?: boolean;
+  /** When set, calibrates the bar and step cycling to this known duration (ms). */
+  durationMs?: number;
   onCancel: () => void;
 }
 
-function formatElapsed(s: number): string {
-  const m = Math.floor(s / 60);
-  const sec = s % 60;
-  return `${m}:${String(sec).padStart(2, "0")}`;
+const STEPS = [
+  "Identifying candidate markets...",
+  "Checking power availability...",
+  "Parsing regulatory environment...",
+  "Reviewing community sentiment...",
+  "Assessing natural hazard exposure...",
+  "Cross-referencing interconnection queues...",
+  "Synthesizing dossier...",
+];
+
+function getProgress(elapsed: number): number {
+  if (elapsed <= 22) return (elapsed / 22) * 88;
+  if (elapsed <= 32) return 88 + (elapsed - 22) * 0.9;
+  return 97;
 }
 
-export default function LoadingView({ elapsed, thinking, onCancel }: LoadingViewProps): React.JSX.Element {
+export default function LoadingView({ elapsed, complete = false, durationMs, onCancel }: LoadingViewProps): React.JSX.Element {
+  const totalSecs = durationMs != null ? durationMs / 1000 : null;
+  const stepInterval = totalSecs != null ? totalSecs / STEPS.length : 4;
+  const stepIndex = Math.min(Math.floor(elapsed / stepInterval), STEPS.length - 1);
+  const progress = complete ? 100 : totalSecs != null
+    ? Math.min(97, (elapsed / totalSecs) * 97)
+    : getProgress(elapsed);
+  const isOverdue = !complete && durationMs == null && elapsed > 32;
+
   return (
     <div
       style={{
@@ -24,81 +44,50 @@ export default function LoadingView({ elapsed, thinking, onCancel }: LoadingView
         padding: "var(--sp-6)",
       }}
     >
-      <div style={{ width: "100%", maxWidth: 520, textAlign: "center" }}>
+      <div style={{ width: "100%", maxWidth: 480, textAlign: "center" }}>
         <p
           style={{
             fontFamily: "var(--font-body)",
             fontSize: 15,
             color: "var(--text-secondary)",
-            margin: "0 0 8px",
+            margin: "0 0 20px",
+            minHeight: 24,
           }}
         >
-          Researching markets...
+          {complete ? "Done." : STEPS[stepIndex]}
         </p>
+
+        <div
+          style={{
+            height: 6,
+            background: "var(--border)",
+            borderRadius: 3,
+            overflow: "hidden",
+            marginBottom: 10,
+          }}
+        >
+          <div
+            style={{
+              height: "100%",
+              width: `${progress}%`,
+              background: "var(--accent)",
+              borderRadius: 3,
+              transition: complete ? "width 0.3s ease-out" : "width 1s linear",
+            }}
+          />
+        </div>
 
         <p
           style={{
             fontFamily: "var(--font-mono)",
-            fontSize: 13,
+            fontSize: 11,
             color: "var(--text-tertiary)",
-            margin: "0 0 20px",
+            margin: "0 0 24px",
+            minHeight: 16,
           }}
         >
-          {formatElapsed(elapsed)}
+          {isOverdue ? "any minute now..." : ""}
         </p>
-
-        {thinking && (
-          <div
-            style={{
-              background: "var(--bg-surface)",
-              border: "1px solid var(--border)",
-              borderRadius: 4,
-              padding: "10px 14px",
-              marginBottom: 20,
-              textAlign: "left",
-              maxHeight: 160,
-              overflow: "hidden",
-              position: "relative",
-            }}
-          >
-            <p
-              style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: 11,
-                color: "var(--text-tertiary)",
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
-                margin: "0 0 6px",
-              }}
-            >
-              Reasoning
-            </p>
-            <p
-              style={{
-                fontFamily: "var(--font-body)",
-                fontSize: 12,
-                color: "var(--text-secondary)",
-                margin: 0,
-                lineHeight: 1.6,
-                whiteSpace: "pre-wrap",
-                wordBreak: "break-word",
-              }}
-            >
-              {thinking.slice(-600)}
-            </p>
-            <div
-              style={{
-                position: "absolute",
-                bottom: 0,
-                left: 0,
-                right: 0,
-                height: 40,
-                background: "linear-gradient(transparent, var(--bg-surface))",
-                pointerEvents: "none",
-              }}
-            />
-          </div>
-        )}
 
         <button
           type="button"

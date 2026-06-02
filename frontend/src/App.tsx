@@ -20,8 +20,9 @@ export default function App() {
   const [dossier, setDossier] = useState<Dossier | null>(null);
   const [isDemo, setIsDemo] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [thinking, setThinking] = useState("");
   const [elapsed, setElapsed] = useState(0);
+  const [loadingComplete, setLoadingComplete] = useState(false);
+  const [demoDurationMs, setDemoDurationMs] = useState<number | undefined>(undefined);
   const abortRef = useRef<AbortController | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -46,8 +47,9 @@ export default function App() {
       if (!v) return;
       abortRef.current?.abort();
       stopTimer();
-      setThinking("");
       setElapsed(0);
+      setLoadingComplete(false);
+      setDemoDurationMs(undefined);
       setView(v);
     }
 
@@ -62,8 +64,9 @@ export default function App() {
   function handleCancel(): void {
     abortRef.current?.abort();
     stopTimer();
-    setThinking("");
     setElapsed(0);
+    setLoadingComplete(false);
+    setDemoDurationMs(undefined);
     navigateTo("input");
   }
 
@@ -74,10 +77,12 @@ export default function App() {
   async function handleDemoSelect(which: 1 | 2): Promise<void> {
     const mockDossier = which === 1 ? MOCK_DOSSIER : MOCK_DOSSIER_2;
     const mockQuery = which === 1 ? MOCK_QUERY : MOCK_QUERY_2;
+    const duration = 5000 + Math.random() * 2000;
 
     setIsDemo(true);
     setRequirements(mockQuery);
     setElapsed(0);
+    setDemoDurationMs(duration);
     setView("loading");
 
     const controller = new AbortController();
@@ -90,17 +95,22 @@ export default function App() {
 
     try {
       await new Promise<void>((resolve, reject) => {
-        const t = setTimeout(resolve, 5000);
+        const t = setTimeout(resolve, duration);
         controller.signal.addEventListener("abort", () => {
           clearTimeout(t);
           reject(new DOMException("Aborted", "AbortError"));
         });
       });
       stopTimer();
+      setLoadingComplete(true);
+      await new Promise((r) => setTimeout(r, 400));
+      setLoadingComplete(false);
+      setDemoDurationMs(undefined);
       setDossier(mockDossier);
       navigateTo("dossier");
     } catch (err) {
       stopTimer();
+      setDemoDurationMs(undefined);
     }
   }
 
@@ -118,7 +128,6 @@ export default function App() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
     setError(null);
-    setThinking("");
     setElapsed(0);
     setView("loading");
 
@@ -136,9 +145,12 @@ export default function App() {
         requirements,
         apiKey,
         controller.signal,
-        (chunk) => setThinking((t) => t + chunk),
+        () => {},
       );
       stopTimer();
+      setLoadingComplete(true);
+      await new Promise((r) => setTimeout(r, 400));
+      setLoadingComplete(false);
       setIsDemo(false);
       setDossier(result);
       navigateTo("dossier");
@@ -162,7 +174,8 @@ export default function App() {
     return (
       <LoadingView
         elapsed={elapsed}
-        thinking={thinking}
+        complete={loadingComplete}
+        durationMs={demoDurationMs}
         onCancel={handleCancel}
       />
     );

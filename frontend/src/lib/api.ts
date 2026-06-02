@@ -84,8 +84,14 @@ const DOSSIER_SCHEMA = {
             },
             required: ["summary", "signal"],
           },
-          connectivity: { type: "string" },
-          recent_activity: { type: "string" },
+          connectivity: {
+            type: "string",
+            description: "2-4 sentence prose summary covering fiber diversity, carrier count, IXP presence, cloud on-ramps, and representative latency figures.",
+          },
+          recent_activity: {
+            type: "string",
+            description: "2-4 sentence prose summary of operator announcements, major leases signed, campus expansions, or construction activity in the past 12-18 months.",
+          },
           key_risks: { type: "array", items: { type: "string" } },
           next_steps: { type: "string" },
         },
