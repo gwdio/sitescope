@@ -3,9 +3,17 @@ import type { Dossier } from "./types";
 const BASE_URL = "https://api.subconscious.dev/v1";
 
 const SYSTEM_PROMPT = `You are SiteScope, a data center site screening analyst.
-Task: research and rank 3-5 candidate US markets for the user's requirements.
+Task: assess 3-5 candidate US markets for the user's requirements.
 
-Research each dimension for every candidate market:
+## Step 1 — Extract priority weights
+
+Read the user's requirements and assign an integer weight (1–5) to each dimension reflecting how much the user cares about it. A dimension the user calls their top priority gets 5; one they don't mention or deprioritize gets 1. Output these as dimension_weights: { power, community, tax, hazards }.
+
+## Step 2 — Research and assess each market
+
+For each candidate market, research all dimensions and assign the correct signal. Be accurate — the signals drive the final ranking, so assess them honestly rather than trying to make a market look good.
+
+Dimensions to research per market:
 1. POWER & GRID: utility capacity, interconnection queues, speed-to-energize
 2. COMMUNITY SENTIMENT: opposition news, moratoriums, zoning battles
 3. TAX & INCENTIVES: state exemptions, property tax abatements, incentive programs
@@ -14,13 +22,21 @@ Research each dimension for every candidate market:
 6. RECENT ACTIVITY: operator announcements, campus developments
 7. REGULATORY: pending legislation, zoning changes, utility rate restructuring
 
-Rules:
+## Step 3 — Set overall_viability honestly
+
+- "strong": performs well on the user's top-weighted dimensions with no major blockers
+- "moderate": mixed performance, or a significant weakness on a mid-priority dimension
+- "cautious": a clear weakness on a high-priority dimension or a hard blocker
+
+Do NOT try to rank the markets — omit the rank field entirely. The client will sort by weighted score.
+
+## Other rules
+
 - Prioritize 2025-2026 information
-- Rank markets by overall viability weighted by the user's stated priorities
 - Identify 1-3 markets to AVOID with specific reasons
 - Be honest about limitations
 
-Produce a JSON object matching the required schema with executive_summary, candidate_markets (3-5), markets_to_avoid, and methodology_note.`;
+Produce a JSON object matching the required schema.`;
 
 const DOSSIER_SCHEMA = {
   type: "object",
@@ -31,7 +47,6 @@ const DOSSIER_SCHEMA = {
       items: {
         type: "object",
         properties: {
-          rank: { type: "integer" },
           market_name: { type: "string" },
           overall_viability: { type: "string", enum: ["strong", "moderate", "cautious"] },
           power: {
@@ -75,7 +90,7 @@ const DOSSIER_SCHEMA = {
           next_steps: { type: "string" },
         },
         required: [
-          "rank", "market_name", "overall_viability",
+          "market_name", "overall_viability",
           "power", "community_sentiment", "tax_and_incentives", "natural_hazards",
           "connectivity", "recent_activity", "key_risks", "next_steps",
         ],
@@ -93,8 +108,18 @@ const DOSSIER_SCHEMA = {
       },
     },
     methodology_note: { type: "string" },
+    dimension_weights: {
+      type: "object",
+      properties: {
+        power: { type: "integer" },
+        community: { type: "integer" },
+        tax: { type: "integer" },
+        hazards: { type: "integer" },
+      },
+      required: ["power", "community", "tax", "hazards"],
+    },
   },
-  required: ["executive_summary", "candidate_markets", "markets_to_avoid", "methodology_note"],
+  required: ["executive_summary", "candidate_markets", "markets_to_avoid", "methodology_note", "dimension_weights"],
 };
 
 interface SseChunk {
@@ -227,9 +252,38 @@ export async function runScreening(
   const raw = contentParts.join("").trim();
   if (!raw) throw new Error("Empty response — no dossier returned.");
 
+  let dossier: Dossier;
   try {
-    return JSON.parse(raw) as Dossier;
+    dossier = JSON.parse(raw) as Dossier;
   } catch {
     throw new Error("Could not parse dossier response. The run may have been cut off.");
   }
+
+  return rankMarkets(dossier);
+}
+
+const SIGNAL_SCORES: Record<string, number> = {
+  favorable: 2, mixed: 1, constrained: 0,
+  supportive: 2, hostile: 0,
+  strong_incentives: 2, moderate_incentives: 1, weak_incentives: 0,
+  low_risk: 2, moderate_risk: 1, high_risk: 0,
+};
+
+function rankMarkets(dossier: Dossier): Dossier {
+  const w = dossier.dimension_weights;
+  const scored = dossier.candidate_markets.map((m) => ({
+    market: m,
+    score:
+      w.power    * (SIGNAL_SCORES[m.power.signal] ?? 1) +
+      w.community * (SIGNAL_SCORES[m.community_sentiment.signal] ?? 1) +
+      w.tax      * (SIGNAL_SCORES[m.tax_and_incentives.signal] ?? 1) +
+      w.hazards  * (SIGNAL_SCORES[m.natural_hazards.signal] ?? 1),
+  }));
+
+  scored.sort((a, b) => b.score - a.score);
+
+  return {
+    ...dossier,
+    candidate_markets: scored.map(({ market }, i) => ({ ...market, rank: i + 1 })),
+  };
 }

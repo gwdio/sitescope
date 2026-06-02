@@ -129,4 +129,5 @@ export const MOCK_DOSSIER: Dossier = {
 
   methodology_note:
     "This dossier was produced by the SiteScope AI research agent using public sources including utility commission filings, state legislative records, county assessor data, and industry reporting. Power availability assessments reflect publicly disclosed utility programs and interconnection queue data as of Q1 2024. Incentive structures are subject to annual legislative change and project-specific negotiation. This analysis should be treated as an initial screening tool; site-specific due diligence, utility load studies, and legal review are required before any capital commitment.",
+  dimension_weights: { power: 5, community: 3, tax: 2, hazards: 2 },
 };

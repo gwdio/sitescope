@@ -83,4 +83,5 @@ export const MOCK_DOSSIER = {
     },
   ],
   methodology_note: "",
+  dimension_weights: { power: 3, community: 2, tax: 4, hazards: 2 },
 };
