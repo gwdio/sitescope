@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import LeftPanel from "./LeftPanel";
 import RightPanel from "./RightPanel";
 import type { Dossier } from "../lib/types";
+import { exportDossier } from "../lib/ExportDossier";
 
 export interface DossierViewProps {
   dossier: Dossier;
@@ -118,15 +119,35 @@ export default function DossierView({ dossier, requirements, isDemo, onHome, onR
             Market Screening Dossier
           </span>
         </div>
-        <span
-          style={{
-            fontFamily: "var(--font-mono)",
-            fontSize: 11,
-            color: "var(--text-tertiary)",
-          }}
-        >
-          {truncate(requirements, 80)}
-        </span>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <span
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: 11,
+              color: "var(--text-tertiary)",
+            }}
+          >
+            {truncate(requirements, 60)}
+          </span>
+          <button
+            type="button"
+            onClick={() => exportDossier(dossier, requirements)}
+            style={{
+              background: "none",
+              border: "1px solid var(--border)",
+              borderRadius: 3,
+              fontFamily: "var(--font-mono)",
+              fontSize: 11,
+              color: "var(--text-secondary)",
+              cursor: "pointer",
+              padding: "4px 10px",
+              whiteSpace: "nowrap",
+              letterSpacing: "0.04em",
+            }}
+          >
+            Export PDF
+          </button>
+        </div>
       </header>
 
       {/* Body */}
