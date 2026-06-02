@@ -2,9 +2,9 @@
 
 **AI-Powered Data Center Site Screening**
 
-SiteScope compresses data center site selection screening from weeks of manual consultant work into a single API call. Given a set of requirements, it researches candidate markets across seven dimensions — power availability, community sentiment, tax incentives, natural hazards, connectivity, recent development activity, and regulatory landscape — and produces a structured, ranked market dossier with actionable signal ratings.
+SiteScope compresses data center site selection screening from weeks of manual consultant work into a single prompt. Given a set of requirements, it researches candidate markets across seven dimensions — power availability, community sentiment, tax incentives, natural hazards, connectivity, recent development activity, and regulatory landscape — and produces a structured, ranked market dossier with actionable signal ratings.
 
-Built on the [Subconscious](https://subconscious.ai) platform using the TIM-CLAUDE engine. Subconscious Hackathon 2026.
+Built on the [Subconscious](https://subconscious.ai) platform using the TIM engine. Subconscious Hackathon 2026.
 
 ---
 
@@ -24,7 +24,7 @@ SiteScope replaces the first two weeks of that process. It doesn't replace the c
 
 **Input:** Natural language requirements — capacity (MW), timeline, geography, workload type, cooling preferences, priority weighting.
 
-**Research:** The agent chains 20–30 searches across fragmented sources (web, news, Google, company filings) to research each candidate market across seven dimensions:
+**Research:** The agent assesses each candidate market across seven dimensions:
 
 - **Power & Grid** — utility capacity, interconnection queue status, grid expansion plans, time-to-energize
 - **Community Sentiment** — opposition groups, moratoriums, zoning battles, canceled projects
@@ -34,7 +34,7 @@ SiteScope replaces the first two weeks of that process. It doesn't replace the c
 - **Recent Development Activity** — active operators, project announcements, campus builds underway
 - **Regulatory & Political Landscape** — pending legislation, zoning changes, utility rate restructuring
 
-**Output:** A structured JSON dossier with:
+**Output:** A structured dossier with:
 - Executive summary and top recommendation
 - 3–5 ranked candidate markets with signal ratings (favorable / mixed / constrained, etc.) across all dimensions
 - Per-market narrative, key risks, and recommended next steps
@@ -45,7 +45,7 @@ SiteScope replaces the first two weeks of that process. It doesn't replace the c
 
 ## Quick Start
 
-**Prerequisites:** Python 3.11+, Node 18+, `SUBCONSCIOUS_API_KEY`
+**Prerequisites:** Python 3.11+, Node 18+, a [Subconscious](https://subconscious.ai) API key (`sky_…`)
 
 ```bash
 cp .env.example .env       # add your SUBCONSCIOUS_API_KEY
@@ -59,36 +59,53 @@ make dev                   # start both servers
 | Backend  | http://localhost:8000      |
 | API docs | http://localhost:8000/docs |
 
-### Mock mode
+On the landing page, choose **See a Demo** (no key required) or **Run a Screen** (enter your `sky_…` key — stored in localStorage, never leaves your browser).
 
-To develop without an API key, set `VITE_USE_MOCK=true` in `frontend/.env.local`. During a loading state, press `=` or `-` to load one of two hardcoded demo dossiers.
+### Demo mode
+
+Two preloaded dossiers are available without an API key:
+
+| # | Scenario | Parameters |
+|---|----------|------------|
+| 1 | Texas Colocation | 5 MW · 24-month delivery · Power-priority |
+| 2 | Southeast Edge PoPs | 1 MW/site · 9-month deployment · Connectivity-priority |
 
 ---
 
 ## Architecture
 
-**Backend:** FastAPI + uvicorn. Three endpoints: `POST /api/screen` (trigger run, returns `run_id`), `GET /api/screen/{run_id}` (poll status), `GET /api/screen/mock` (hardcoded demo dossier). Agent output is validated server-side against a Pydantic `SiteScreeningDossier` model before returning to the client.
+**Backend:** FastAPI + uvicorn. Proxies requests to the Subconscious API and validates agent output against a Pydantic `SiteScreeningDossier` model before returning to the client.
 
-**AI:** Subconscious SDK — one `client.run()` call with `engine="tim-claude"`, four platform tools, and a typed `answerFormat` schema. Subconscious handles orchestration, tool execution, and context management. 900s timeout.
+**AI:** Subconscious SDK — `subconscious/tim-qwen3.6-27b` engine. A structured system prompt instructs the agent to extract priority weights from requirements, assess each market across all seven dimensions, and return a typed JSON dossier. Response is streamed and parsed client-side.
 
-**Frontend:** React 18 + TypeScript + Vite. Three-state view machine (`input → loading → dossier`) with 2-second polling. Split-panel dossier view: left panel shows a signal matrix (markets × dimensions, color-coded dots) for quick comparison; right panel shows full market detail. No external component library.
+**Frontend:** React 18 + TypeScript + Vite. Four-state view machine (`input → demo-select → loading → dossier`). Split-panel dossier view: left panel shows a signal matrix (markets × dimensions, color-coded dots) for quick comparison; right panel shows full market detail. No external component library.
+
+**Deploy:** Static frontend build → S3 + CloudFront (Terraform in `infra/`).
 
 ```
-src/
-  App.tsx           — view state machine
+frontend/src/
+  App.tsx                — view state machine (input / demo-select / loading / dossier)
   components/
-    InputView       — requirements form
-    LoadingView     — polling status
-    DossierView     — split-panel layout
-    LeftPanel       — executive summary + signal matrix
-    RightPanel      — market detail, risks, next steps
+    InputView            — two-path landing: See a Demo / Run a Screen + BYO key input
+    DemoSelectView       — choose between two preloaded scenarios
+    LoadingView          — elapsed timer + step cycling + cancel
+    DossierView          — split-panel layout
+    LeftPanel            — executive summary + signal matrix + avoid list
+    RightPanel           — market detail, risks, next steps
   lib/
-    api.ts          — startScreening / pollScreening
-    types.ts        — Dossier / CandidateMarket interfaces
-    signals.ts      — signal enum → label / color
-    mockData.ts     — demo dossier #1
-    mockData2.ts    — demo dossier #2
+    api.ts               — validateApiKey / runScreening (streaming SSE)
+    types.ts             — Dossier / CandidateMarket interfaces
+    signals.ts           — signal enum → label / color
+    mockData.ts          — demo dossier #1
+    mockData2.ts         — demo dossier #2
+    ExportDossier.ts     — HTML template + download
 ```
+
+---
+
+## Export
+
+The header export button produces a self-contained `SiteScope_Dossier_YYYY-MM-DD.html` file (inline CSS + Google Fonts, print-ready with page breaks per market).
 
 ---
 
@@ -98,7 +115,7 @@ SiteScope is a screening tool, not a final recommendation engine. It explicitly 
 
 - **Parcel-level availability** requires broker engagement — the agent cannot access title, easements, or Phase I environmental data.
 - **Specific substation capacity** requires direct utility engagement — general grid signals are researchable; exact MW available at a given point of interconnection is not.
-- **Gated data sources** — ISO interconnection queue databases behind paywalls, proprietary utility GIS layers, and detailed FEMA mapping tools are not accessible via web search.
-- **Private negotiations** — community sentiment from news coverage captures public signals, not backroom relationships or back-channel opposition.
+- **Gated data sources** — ISO interconnection queue databases behind paywalls, proprietary utility GIS layers, and detailed FEMA mapping tools may not be fully accessible.
+- **Private negotiations** — community sentiment captures public signals, not backroom relationships or back-channel opposition.
 
 The agent frames its output as a screening layer that identifies where to focus human engagement — not a replacement for it.

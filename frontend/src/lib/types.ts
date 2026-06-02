@@ -5,7 +5,7 @@ export type IncentivesSignal = "strong_incentives" | "moderate_incentives" | "we
 export type HazardsSignal = "low_risk" | "moderate_risk" | "high_risk";
 
 export interface CandidateMarket {
-  rank: number;
+  rank: number; // assigned client-side after weighted sort
   market_name: string;
   overall_viability: ViabilitySignal;
   power: { summary: string; signal: PowerSignal };
@@ -18,9 +18,16 @@ export interface CandidateMarket {
   next_steps: string;
 }
 
+export interface DimensionWeights {
+  power: number;
+  community: number;
+  tax: number;
+  hazards: number;
+}
+
 export interface Dossier {
   executive_summary: string;
   candidate_markets: CandidateMarket[];
   markets_to_avoid: { market_name: string; reason: string }[];
-  methodology_note: string;
+  dimension_weights: DimensionWeights;
 }

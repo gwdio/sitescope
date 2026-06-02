@@ -1,0 +1,132 @@
+{
+  "executive_summary": "Based on 2025-2026 criteria prioritizing power speed-to-energize, community receptiveness, and tax incentives for a 50MW AI facility in the US Sun Belt or Midwest, **Northern Virginia (Ashburn)** remains the gold standard for connectivity and power but faces significant interconnection delays and community pushback. **Dallas-Fort Worth** offers the best balance of grid readiness, community acceptance, and tax incentives. **Phoenix/Mesa** has strong utility capacity but increasing water and heat concerns. **Kansas City** is the top Midwest contender with low power costs and high receptiveness. **Houston** offers cheap power but faces hurricane risk and fragmented governance. Markets to avoid include **Los Angeles** (costs, opposition), **Chicago** (grid constraints, cold climate), and **Atlanta** (renewable conflicts, slower grid).",
+  "candidate_markets": [
+    {
+      "rank": 1,
+      "market_name": "Dallas-Fort Worth, Texas",
+      "overall_viability": "strong",
+      "power": {
+        "summary": "ONNC (Texas) provides robust transmission capacity with minimal interconnection queues. Major utilities (Oncor, TNMP) are actively expanding substations to meet data center demand. Speed-to-energize typically 12-18 months for 50MW projects due to streamlined ERCOT processes.",
+        "signal": "favorable"
+      },
+      "community_sentiment": {
+        "summary": "Moderate opposition in specific suburbs (e.g., Coppell, Frisco), but overall receptive due to economic benefits. Zoning is proactive, with many cities creating data center overlays. No widespread moratoriums.",
+        "signal": "mixed"
+      },
+      "tax_and_incentives": {
+        "summary": "Texas has no state income tax. Property tax abatements available through Industrial Revenue Bonds (IRBs). Local incentives vary but are aggressive for 50MW+ projects.",
+        "signal": "strong_incentives"
+      },
+      "natural_hazards": {
+        "summary": "Low seismic risk. Moderate tornado risk. Low flood risk in designated industrial zones. Heat mitigation requires robust cooling but is manageable.",
+        "signal": "moderate_risk"
+      },
+      "connectivity": "carrier_neutral",
+      "recent_activity": "Major announcements from AWS, Google, and Microsoft in 2025. Rapid construction of carrier-neutral facilities by Equinix and Digital Realty.",
+      "key_risks": [
+        "Tornado risk",
+        "Local zoning battles in specific suburbs"
+      ],
+      "next_steps": "Engage with Oncor/TNMP for substation capacity maps. Visit Frisco and Coppell to assess local political climate. Negotiate IRB terms with economic development corporations."
+    },
+    {
+      "rank": 2,
+      "market_name": "Northern Virginia (Ashburn), Virginia",
+      "overall_viability": "moderate",
+      "power": {
+        "summary": "Dominion Energy has committed to massive grid upgrades, but interconnection queues remain long (18-36 months). Speed-to-energize is a risk factor. Power availability is abundant but delivery timelines are uncertain.",
+        "signal": "mixed"
+      },
+      "community_sentiment": {
+        "summary": "Significant opposition in Loudoun and Prince William counties. Moratoriums and zoning delays are common. Community receptiveness is low due to water usage concerns and visual impact.",
+        "signal": "mixed"
+      },
+      "tax_and_incentives": {
+        "summary": "Virginia offers PILOT programs and property tax abatements. Recent legislation caps incentives for data centers. Overall favorable but less aggressive than Texas.",
+        "signal": "moderate_incentives"
+      },
+      "natural_hazards": {
+        "summary": "Low natural hazard risk. Low seismic, flood, and wildfire risk. Coastal hurricane risk is low for Ashburn.",
+        "signal": "low_risk"
+      },
+      "connectivity": "global_epicenter",
+      "recent_activity": "Continued dominance by major hyperscalers. New regulations on water usage may impact high-density AI cooling requirements.",
+      "key_risks": [
+        "Interconnection delays",
+        "Community opposition and moratoriums"
+      ],
+      "next_steps": "Verify specific interconnection queue status for Ashburn substations. Assess water recycling technology needs to comply with new regulations."
+    },
+    {
+      "rank": 3,
+      "market_name": "Kansas City, Missouri",
+      "overall_viability": "strong",
+      "power": {
+        "summary": "Ameren and KCP&L offer competitive power rates and expanding transmission capacity. Interconnection processes are faster than national average (12-24 months). Grid is stable and receptive to data center load.",
+        "signal": "favorable"
+      },
+      "community_sentiment": {
+        "summary": "Highly receptive community due to economic development focus. Minimal opposition. Zoning is streamlined for industrial/data center use.",
+        "signal": "mixed"
+      },
+      "tax_and_incentives": {
+        "summary": "Missouri offers property tax abatements and grant programs. Kansas side offers similar incentives. Aggressive local competition drives favorable terms.",
+        "signal": "strong_incentives"
+      },
+      "natural_hazards": {
+        "summary": "Low natural hazard risk. Low seismic, flood, and tornado risk. Midwest climate requires heating but is manageable.",
+        "signal": "low_risk"
+      },
+      "connectivity": "carrier_neutral",
+      "recent_activity": "Surge in data center construction by Equinix, Digital Realty, and CyrusOne. Amazon and Google have expanded footprints.",
+      "key_risks": [
+        "Less diverse fiber routes than NoVA or Dallas",
+        "Midwest climate requires heating"
+      ],
+      "next_steps": "Evaluate fiber diversity options with multiple carriers. Assess heating requirements for AI workloads."
+    },
+    {
+      "rank": 4,
+      "market_name": "Phoenix/Mesa, Arizona",
+      "overall_viability": "moderate",
+      "power": {
+        "summary": "APS and SRP have significant capacity but face renewable integration challenges. Interconnection queues are manageable (18-24 months). Speed-to-energize is moderate.",
+        "signal": "mixed"
+      },
+      "community_sentiment": {
+        "summary": "Mixed sentiment due to water usage concerns and heat. Some communities are receptive, others oppose. Zoning is generally favorable but under pressure.",
+        "signal": "mixed"
+      },
+      "tax_and_incentives": {
+        "summary": "Arizona offers property tax abatements and grant programs. Aggressive incentives for data centers but may face legislative changes.",
+        "signal": "moderate_incentives"
+      },
+      "natural_hazards": {
+        "summary": "Low seismic risk. Moderate wildfire risk. Low flood risk. Extreme heat requires significant cooling energy.",
+        "signal": "moderate_risk"
+      },
+      "connectivity": "carrier_neutral",
+      "recent_activity": "Major investments by Intel, TSMC, and data center developers. Focus on semiconductor ecosystem.",
+      "key_risks": [
+        "Water usage concerns",
+        "Extreme heat impact on cooling efficiency"
+      ],
+      "next_steps": "Assess water recycling and dry cooling options. Evaluate wildfire mitigation strategies."
+    }
+  ],
+  "markets_to_avoid": [
+    {
+      "market_name": "Los Angeles, California",
+      "reason": "High power costs, stringent environmental regulations, significant community opposition, and unreliable grid capacity due to renewable intermittency and wildfire risks."
+    },
+    {
+      "market_name": "Chicago, Illinois",
+      "reason": "Aging grid infrastructure, high interconnection delays, cold climate requiring heating, and political opposition to data centers in some communities."
+    },
+    {
+      "market_name": "Atlanta, Georgia",
+      "reason": "Renewable energy conflicts, slower grid expansion, and increasing opposition in suburban counties. Power costs are rising due to grid strain."
+    }
+  ],
+  "methodology_note": "Analysis based on 2025-2026 data, prioritizing power speed-to-energize, community receptiveness, and tax incentives. Markets ranked by overall viability for 50MW AI facility with 40-50kW per rack. Emerging markets like Kansas City show strong potential due to low competition and favorable conditions."
+}

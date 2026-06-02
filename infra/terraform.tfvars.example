@@ -1,0 +1,3 @@
+# Copy to terraform.tfvars and fill in:
+acm_certificate_arn = "arn:aws:acm:us-east-1:ACCOUNT_ID:certificate/CERT_ID"
+aws_profile         = "deploy"
