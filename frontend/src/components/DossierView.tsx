@@ -6,13 +6,15 @@ import type { Dossier } from "../lib/types";
 interface Props {
   dossier: Dossier;
   requirements: string;
+  isDemo?: boolean;
+  onRunLive?: () => void;
 }
 
 function truncate(s: string, max: number) {
   return s.length > max ? s.slice(0, max) + "…" : s;
 }
 
-export default function DossierView({ dossier, requirements }: Props) {
+export default function DossierView({ dossier, requirements, isDemo, onRunLive }: Props) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const market = dossier.candidate_markets[selectedIndex];
 
@@ -27,6 +29,47 @@ export default function DossierView({ dossier, requirements }: Props) {
         background: "var(--bg-page)",
       }}
     >
+      {/* Demo banner */}
+      {isDemo && (
+        <div
+          style={{
+            background: "var(--bg-surface)",
+            borderBottom: "1px solid var(--border)",
+            padding: "8px 24px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexShrink: 0,
+          }}
+        >
+          <span
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: 12,
+              color: "var(--text-secondary)",
+            }}
+          >
+            Viewing demo data
+          </span>
+          <button
+            type="button"
+            onClick={onRunLive}
+            style={{
+              background: "none",
+              border: "none",
+              fontFamily: "var(--font-body)",
+              fontSize: 12,
+              color: "var(--accent)",
+              cursor: "pointer",
+              padding: 0,
+              textDecoration: "underline",
+            }}
+          >
+            Enter your key to run a live screen
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <header
         style={{
