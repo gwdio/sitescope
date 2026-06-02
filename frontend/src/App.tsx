@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { runScreening, validateApiKey } from "./lib/api";
 import type { Dossier } from "./lib/types";
 import { MOCK_DOSSIER } from "./lib/mockData";
@@ -25,7 +25,7 @@ export default function App() {
   const abortRef = useRef<AbortController | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  function stopTimer() {
+  function stopTimer(): void {
     if (timerRef.current !== null) {
       clearInterval(timerRef.current);
       timerRef.current = null;
@@ -34,7 +34,7 @@ export default function App() {
 
   useEffect(() => () => { stopTimer(); abortRef.current?.abort(); }, []);
 
-  function handleCancel() {
+  function handleCancel(): void {
     abortRef.current?.abort();
     stopTimer();
     setView("input");
@@ -42,24 +42,24 @@ export default function App() {
     setElapsed(0);
   }
 
-  function handleDemo() {
+  function handleDemo(): void {
     setIsDemo(true);
     setDossier(MOCK_DOSSIER);
     setView("dossier");
   }
 
-  function handleForgetKey() {
+  function handleForgetKey(): void {
     setApiKey("");
     localStorage.removeItem(LS_KEY);
   }
 
-  const handleApiKeyChange = useCallback((val: string) => {
+  function handleApiKeyChange(val: string): void {
     setApiKey(val);
     if (val) localStorage.setItem(LS_KEY, val);
     else localStorage.removeItem(LS_KEY);
-  }, []);
+  }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
     setError(null);
     setThinking("");

@@ -97,6 +97,10 @@ const DOSSIER_SCHEMA = {
   required: ["executive_summary", "candidate_markets", "markets_to_avoid", "methodology_note"],
 };
 
+interface SseChunk {
+  choices?: Array<{ delta?: { content?: string } }>;
+}
+
 export class ApiKeyError extends Error {
   constructor(message: string) {
     super(message);
@@ -168,7 +172,6 @@ export async function runScreening(
   let buf = "";
   const contentParts: string[] = [];
   let inThink = false;
-  let thinkBuf = "";
 
   while (true) {
     const { done, value } = await reader.read();
@@ -183,9 +186,9 @@ export async function runScreening(
       const data = line.slice(6);
       if (data === "[DONE]") continue;
 
-      let chunk: { choices?: { delta?: { content?: string } }[] };
+      let chunk: SseChunk;
       try {
-        chunk = JSON.parse(data);
+        chunk = JSON.parse(data) as SseChunk;
       } catch {
         continue;
       }
@@ -199,13 +202,10 @@ export async function runScreening(
         if (inThink) {
           const end = remaining.indexOf("</think>");
           if (end === -1) {
-            thinkBuf += remaining;
             onThinking?.(remaining);
             remaining = "";
           } else {
-            const part = remaining.slice(0, end);
-            thinkBuf += part;
-            onThinking?.(part);
+            onThinking?.(remaining.slice(0, end));
             inThink = false;
             remaining = remaining.slice(end + 8);
           }

@@ -1,20 +1,20 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import LeftPanel from "./LeftPanel";
 import RightPanel from "./RightPanel";
 import type { Dossier } from "../lib/types";
 
-interface Props {
+export interface DossierViewProps {
   dossier: Dossier;
   requirements: string;
   isDemo?: boolean;
   onRunLive?: () => void;
 }
 
-function truncate(s: string, max: number) {
+function truncate(s: string, max: number): string {
   return s.length > max ? s.slice(0, max) + "…" : s;
 }
 
-export default function DossierView({ dossier, requirements, isDemo, onRunLive }: Props) {
+export default function DossierView({ dossier, requirements, isDemo, onRunLive }: DossierViewProps): React.JSX.Element {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const market = dossier.candidate_markets[selectedIndex];
 

@@ -1,16 +1,18 @@
-interface Props {
+import React from "react";
+
+export interface LoadingViewProps {
   elapsed: number;
   thinking: string;
   onCancel: () => void;
 }
 
-function formatElapsed(s: number) {
+function formatElapsed(s: number): string {
   const m = Math.floor(s / 60);
   const sec = s % 60;
   return `${m}:${String(sec).padStart(2, "0")}`;
 }
 
-export default function LoadingView({ elapsed, thinking, onCancel }: Props) {
+export default function LoadingView({ elapsed, thinking, onCancel }: LoadingViewProps): React.JSX.Element {
   return (
     <div
       style={{

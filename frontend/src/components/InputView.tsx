@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 
-interface Props {
+export interface InputViewProps {
   requirements: string;
   onChange: (val: string) => void;
   apiKey: string;
   onApiKeyChange: (val: string) => void;
   onForgetKey: () => void;
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmit: React.FormEventHandler<HTMLFormElement>;
   onDemo: () => void;
   error: string | null;
 }
@@ -20,8 +20,8 @@ export default function InputView({
   onSubmit,
   onDemo,
   error,
-}: Props) {
-  const [showForm, setShowForm] = useState(!!apiKey);
+}: InputViewProps): React.JSX.Element {
+  const [showForm, setShowForm] = useState<boolean>(!!apiKey);
 
   return (
     <div
