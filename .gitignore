@@ -7,6 +7,13 @@ backend/__pycache__/
 frontend/node_modules/
 frontend/dist/
 
+# Terraform
+infra/.terraform/
+infra/.terraform.lock.hcl
+infra/terraform.tfvars
+infra/terraform.tfstate
+infra/terraform.tfstate.backup
+
 # Misc
 .env
 .DS_Store

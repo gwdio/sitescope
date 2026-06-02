@@ -21,3 +21,26 @@ dev-backend:
 
 dev-frontend:
 	cd frontend && npm run dev
+
+# ── Deploy ────────────────────────────────────────────────────────────────────
+
+build:
+	cd frontend && npm run build
+
+infra-init:
+	cd infra && terraform init
+
+infra-plan:
+	cd infra && terraform plan
+
+infra-apply:
+	cd infra && terraform apply
+
+# Build, sync to S3, and invalidate CloudFront cache.
+# Reads DISTRIBUTION_ID and BUCKET from terraform output; run `make infra-apply` first.
+deploy: build
+	$(eval BUCKET := $(shell cd infra && terraform output -raw s3_bucket))
+	$(eval DIST_ID := $(shell cd infra && terraform output -raw cloudfront_distribution_id))
+	aws s3 sync frontend/dist/ s3://$(BUCKET)/ --delete
+	aws cloudfront create-invalidation --distribution-id $(DIST_ID) --paths "/*"
+	@echo "Deployed → https://sitescope.grantwang.dev"
