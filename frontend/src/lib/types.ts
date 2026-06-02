@@ -29,6 +29,5 @@ export interface Dossier {
   executive_summary: string;
   candidate_markets: CandidateMarket[];
   markets_to_avoid: { market_name: string; reason: string }[];
-  methodology_note: string;
   dimension_weights: DimensionWeights;
 }

@@ -2,132 +2,129 @@ import type { Dossier } from "./types";
 
 export const MOCK_DOSSIER: Dossier = {
   executive_summary:
-    "Screening identified three viable Sun Belt and Midwest markets for a 50MW hyperscale AI training facility with a 24-month energization target. Phoenix metro offers the strongest near-term power availability and established hyperscale precedent, despite mixed community sentiment around water use. Columbus presents a favorable regulatory climate and grid investment pipeline but faces tighter near-term capacity. San Antonio carries execution risk due to ERCOT interconnection timelines and recent utility rate proceedings.",
+    "This analysis evaluates Texas data center markets for a 5 MW colocation deployment with a 24-month delivery requirement. Texas offers a compelling combination of deregulated power markets, aggressive tax incentive frameworks, and mature fiber infrastructure — factors that have positioned the state to surpass Northern Virginia as the largest data center market by capacity by 2027.\n\nDallas-Fort Worth ranks first on the strength of its mature carrier ecosystem, sub-$0.034/kWh deregulated power, and active 381 Economic Development Agreement pipeline that can compress effective land costs by 60–80% over ten years. San Antonio ranks second as the highest-growth submarket in Texas, with CPS Energy's municipal utility structure providing rate stability and a military-adjacent cybersecurity cluster driving sustained demand. Houston ranks third, offering strong power infrastructure and a unique Latin American connectivity gateway, offset by hurricane exposure and degraded grid resilience following Hurricane Beryl.\n\nAustin is excluded: regulated Austin Energy rates run 55–70% above the ERCOT deregulated average, interconnection queues exceed 18 months for large loads, and recent City Council actions signal increasing friction for large industrial energy consumers. The 24-month delivery target is not achievable under current Austin Energy queue conditions.",
 
   candidate_markets: [
     {
       rank: 1,
-      market_name: "Phoenix Metro (West Valley)",
+      market_name: "Dallas-Fort Worth",
       overall_viability: "strong",
       power: {
         summary:
-          "APS and SRP both have large-load programs with dedicated hyperscale teams. Multiple substations in Goodyear and Buckeye corridors can support 50MW within 18–22 months. SRP has publicly committed to 2GW of new large-load capacity by 2027.",
+          "Deregulated ERCOT market with direct access to 30+ retail energy providers. Nodal pricing at the NRTH hub averages $0.033–0.036/kWh for commercial loads, 44% below the national average. Oncor and TNMP serve the metro; both have active transmission expansion programs with ERCOT's 2024 CDR showing positive reserve margins through 2026. Multiple substations with available capacity in Garland, Mesquite, and the Stemmons Corridor. Large-load interconnection (5 MW+) typically closes in 9–14 months with a pre-application filed.",
         signal: "favorable",
       },
       community_sentiment: {
         summary:
-          "Strong municipal support in Goodyear and Avondale, with both cities actively recruiting hyperscale tenants. Some organized opposition from water-rights groups given the state's ongoing drought conditions; low-water-use commitments and dry-cooling commitments significantly reduce friction.",
-        signal: "mixed",
-      },
-      tax_and_incentives: {
-        summary:
-          "Arizona offers a datacenter sales tax exemption on servers and power infrastructure (TPT exemption, ARS §42-5159). Maricopa County has approved GPLET agreements for qualifying facilities. Combined state and local incentive stack is competitive.",
-        signal: "strong_incentives",
-      },
-      natural_hazards: {
-        summary:
-          "Flood risk minimal in West Valley elevated sites. No significant seismic exposure. Primary hazard is extreme heat (115°F+ design days), which increases cooling CAPEX but is well-understood and manageable. No tornado or hurricane exposure.",
-        signal: "low_risk",
-      },
-      connectivity:
-        "Excellent fiber density along I-10 and Loop 303 corridors. Lumen, Zayo, and CenturyLink all have lit routes. Phoenix is a Tier 1 internet exchange hub (PhxIX). Round-trip latency to LA under 15ms, Denver under 20ms.",
-      recent_activity:
-        "Microsoft announced 800MW Phoenix expansion in Q1 2024. Meta's Mesa campus reached 500MW total. Google broke ground on 300MW Goodyear campus in late 2023. High developer activity may increase competition for utility capacity and shovel-ready land.",
-      key_risks: [
-        "Water scarcity creates reputational and regulatory risk; dry-cooling or hybrid cooling required to maintain community license to operate",
-        "Utility queue congestion rising as hyperscale demand surges — early utility engagement critical to secure 2025–2026 energization windows",
-        "Land costs in established corridors have increased 35–50% YoY; off-corridor sites require infrastructure investment",
-      ],
-      next_steps:
-        "Engage APS Large Load team and SRP Economic Development within 30 days to assess available substation capacity for a 50MW load. Issue an RFP to 3–4 West Valley land brokers for site options in Goodyear, Buckeye, and Surprise. Initiate water-use analysis to model dry-cooling feasibility at the target density.",
-    },
-    {
-      rank: 2,
-      market_name: "Columbus Metro (New Albany Technology Corridor)",
-      overall_viability: "moderate",
-      power: {
-        summary:
-          "AEP Ohio serves the New Albany corridor and has invested in transmission upgrades driven by Intel and Google campuses. Near-term 50MW blocks are constrained through mid-2025, but AEP's Capital South substation expansion (scheduled Q3 2025) should open capacity. The Ohio PUC has been cooperative on large-load processing timelines.",
-        signal: "mixed",
-      },
-      community_sentiment: {
-        summary:
-          "New Albany and Licking County are among the most datacenter-friendly jurisdictions in the Midwest. Township trustees have approved multiple hyperscale sites without significant opposition. Intel's $20B Ohio One campus has normalized large industrial development in the region.",
+          "Strongly pro-development across Collin, Dallas, and Tarrant counties. Local economic development councils actively recruit data center operators; Allen, Garland, and Grand Prairie have each approved facility permits within the past 18 months without community opposition. The DFW tech corridor narrative — anchored by AT&T, Texas Instruments, and a dense cloud-tenant base — creates a politically receptive environment. No organized opposition groups identified. Allen ISD and Garland ISD have both publicly supported HB 5 appraised value limitation agreements for data center investments.",
         signal: "supportive",
       },
       tax_and_incentives: {
         summary:
-          "Ohio offers a 100% sales tax exemption on datacenter equipment (ORC §5739.02) and a 15-year property tax abatement via the Enterprise Zone program. New Albany has approved TIF arrangements for qualifying projects. One of the strongest incentive environments in the country.",
+          "Texas HB 5 (2023) framework allows 10-year appraised value limitations on real and personal property for qualifying data centers. DFW submarkets routinely negotiate Chapter 381 Economic Development Agreements with municipalities, providing additional tax rebates of 25–50% on city and county levies. The Texas Data Center Exemption (Sec. 151.359) eliminates sales and use tax on qualifying equipment purchases for facilities meeting the 200 MW or $200M investment thresholds — operators in a campus context can pool to qualify. Effective all-in incentive packages in this market reduce 10-year operating costs by an estimated $8–12M per 5 MW deployment.",
         signal: "strong_incentives",
       },
       natural_hazards: {
         summary:
-          "Central Ohio has no significant seismic, hurricane, or flood risk. Tornado risk is present but below average for the Midwest; sites are designed to F3 wind loading standards as a matter of course. Mild climate reduces cooling load versus Sun Belt alternatives.",
+          "Low-risk profile for data center operations. Primary hazard is EF1–EF2 tornado activity (avg. 4–6 events per year within 50 miles); standard tilt-up concrete construction with reinforced roof systems fully mitigates this risk class, and all major operators in the market build to this standard. No seismic exposure, no coastal flooding risk, no wildfire interface zone. Winter ice events are the secondary concern: DFW sits in a more favorable thermal zone than Central Texas, and post-Uri ERCOT weatherization mandates have substantially reduced grid vulnerability to sustained cold events.",
         signal: "low_risk",
       },
       connectivity:
-        "Columbus sits on multiple Tier 1 backbone routes between Chicago and the Mid-Atlantic. Zayo, Windstream, and AT&T all have diverse fiber routes. ColoHouse and QTS offer carrier hotels. Latency to Chicago under 10ms, NYC under 15ms.",
+        "Premier carrier-neutral density. DE-CIX Dallas (OIX-1 certified) operates the primary internet exchange with 200+ connected networks. LOGIX Fiber Networks provides 7,200+ route-miles of owned dark fiber across the metro. The Equinix DA1–DA11 campus in West Dallas anchors the ecosystem; 80+ carriers maintain PoPs. Direct cloud on-ramps to AWS us-east-2 Dallas edge, Azure South Central US, and GCP us-south1. Zayo and Windstream provide subsea-adjacent connectivity to East and West Coast hubs. Measured round-trip latency to Chicago: 28 ms; New York: 42 ms.",
       recent_activity:
-        "Google's New Albany campus reached 1GW total capacity in 2023. Amazon AWS announced a $7.8B Ohio investment in 2024. Intel Ohio One construction ongoing with expected 2026 partial completion. Strong institutional activity validates the market but increases grid pressure.",
+        "Switch announced a 1.2 GW campus in the Lufkin corridor (Jan 2024). QTS broke ground on a 400 MW hyperscale expansion in Irving (Q3 2023). Aligned Data Centers secured 200 acres in Grand Prairie with 500 MW planned capacity (Dec 2023). Microsoft and Google each expanded existing Texas footprints by more than 100 MW in 2023. Colocation absorption hit 94.5% preleasing across existing inventory, driving 14% YoY rent escalation for retail colo.",
       key_risks: [
-        "AEP capacity queue is congested through mid-2025; a 50MW project targeting 24-month energization must enter queue by Q2 2024 to hit the timeline",
-        "Labor and construction costs elevated due to Intel and AWS activity drawing on the same contractor pool",
+        "Near-term capacity tight: 94.5% preleasing leaves fewer than 30 MW of uncommitted retail colo available metro-wide; 5 MW commitment likely requires a 12–18 month forward booking",
+        "Power transmission congestion in North Dallas increasing; Oncor CPCN filings face PUCT review delays averaging 8 months",
+        "Land costs in established corridors (Plano, Irving, Richardson) up 35% YoY; greenfield sites require new substation investment not captured in standard lease economics",
+        "18-month interconnection timeline creates execution risk against 24-month delivery target — requires immediate pre-application filing to stay on schedule",
       ],
       next_steps:
-        "Contact AEP Ohio Economic Development to obtain a formal capacity assessment for the New Albany substation area. Engage Licking County and New Albany planning offices to confirm site availability in the Technology Corridor. Evaluate timing relative to Intel construction labor demand.",
+        "File ERCOT large-load interconnection pre-application for target sites in Q1. Engage QTS, Compass, and Aligned Data Centers for forward capacity commitments — all three have sub-12-month delivery inventory. Issue RFP to Oncor and TNMP concurrently to baseline available substation capacity. Retain Texas economic development counsel to initiate Chapter 381 Agreement negotiations with Garland and Grand Prairie before site selection closes.",
     },
     {
-      rank: 3,
-      market_name: "San Antonio Metro (Brooks City-Base / South Side)",
-      overall_viability: "cautious",
+      rank: 2,
+      market_name: "San Antonio",
+      overall_viability: "moderate",
       power: {
         summary:
-          "CPS Energy serves San Antonio and has been adding generation capacity, but ERCOT interconnection timelines remain the primary constraint for new large loads. A 50MW project entering interconnection today faces a 28–36 month timeline under current queue backlogs. CPS's TechQ program offers some prioritization for economic development projects, but has not consistently reduced interconnection timelines for hyperscale loads.",
-        signal: "constrained",
+          "CPS Energy, the nation's largest municipally owned utility, serves the market with stable regulated rates averaging $0.038/kWh for large commercial loads — competitive but 10–15% above the DFW deregulated floor. The municipal structure eliminates retail competition risk but also removes the ability to shop providers or hedge via direct PPA. CPS has publicly committed to 50% renewable generation by 2030 and offers a green tariff option. Active large-load queue: 3 GW of data center requests currently in interconnection study, implying 14–20 month interconnection timelines for new 5 MW applications.",
+        signal: "favorable",
       },
       community_sentiment: {
         summary:
-          "City Council and the Mayor's office have been supportive of datacenter investment as part of the Brooks City-Base redevelopment strategy. No organized community opposition identified. CPS Energy's rate proceedings drew some criticism from commercial ratepayers in 2023, but not directed at datacenter tenants specifically.",
+          "Mixed signals. City Council approved three data center permits in 2023 without opposition, and the city's 'Cyber City' economic development brand reflects genuine government support. However, two advocacy groups — Neighbors for Responsible Growth and the Texas Environmental Justice Coalition — have begun intervening in large industrial water-use permit proceedings, which is directly relevant for liquid-cooled deployments. Bexar County Judge's office actively courts data center investment and maintains a favorable working relationship with CPS Energy's large-load team. Net: supportive at the government level, emerging friction at the community level for facilities with high water or visual impact.",
         signal: "mixed",
       },
       tax_and_incentives: {
         summary:
-          "Texas offers a sales tax exemption on qualifying datacenter equipment under HB 2592 (requires $200M+ investment over 5 years). Chapter 380 agreements available through City of San Antonio. Bexar County Commissioners have approved tax abatements for large economic development projects. Incentive stack is competitive but contingent on investment thresholds.",
+          "Bexar County participates in the HB 5 appraised value limitation framework, though negotiations have historically been less aggressive than DFW counterparts. San Antonio's Chapter 380 economic development agreements provide city sales tax rebates of 15–30% on qualifying investments. The Texas Data Center Exemption applies but the $200M threshold requires multi-tenant or phased commitment to achieve for a single 5 MW facility. CPS Energy offers large-load economic development rates that reduce effective energy costs 8–12% for multi-year commitments above 2 MW. Net incentive value estimated at $4–6M over 10 years for a standalone 5 MW deployment.",
         signal: "moderate_incentives",
       },
       natural_hazards: {
         summary:
-          "Primary risks are severe weather events and ERCOT grid stability. Winter Storm Uri (2021) exposed grid reliability risk; ERCOT has since added reserve margin, but risk remains elevated versus non-ERCOT markets. Flood risk in some South Side areas; due diligence required for specific site selection. Hail and severe thunderstorm risk above national average.",
+          "Favorable natural hazard profile. Inland location (150 miles from coast) eliminates hurricane risk entirely. No seismic exposure. Primary site-selection risk is flash flooding in low-lying areas draining the Edwards Plateau; the northwest I-10 corridor and the Schertz/Seguin submarkets are both above the 100-year flood plain and represent the preferred development zone. Tornado frequency is lower than DFW (avg. 1–2 relevant events per year). Winter storm risk is moderate: CPS Energy completed ERCOT-mandated weatherization post-Uri, reducing outage risk, but February 2021 demonstrated municipal utility vulnerability to extended cold events.",
+        signal: "low_risk",
+      },
+      connectivity:
+        "Solid regional connectivity with room to grow. SAT-IX and FD-IX provide internet exchange options; carrier count (22 major PoPs) is adequate for 5 MW colocation but thin compared to DFW. LOGIX and Zayo maintain metro fiber rings with reasonable diversity. Direct cloud on-ramps to Azure South Central US (San Antonio AZ) and limited AWS connectivity via Dallas cross-connects. Latency to DFW: 8 ms. Primary gap: no submarine cable access and limited on-net path diversity for international traffic — workloads requiring Latin American reach should route through Houston.",
+      recent_activity:
+        "Vantage Data Centers broke ground on a 36 MW, three-building campus on the northwest side (Q2 2023). Stream Data Centers opened a 16 MW facility in Live Oak (Jan 2024). CPS Energy approved three new large-load service agreements totaling 85 MW in H2 2023. USAA expanded its on-premises data center footprint by 12 MW for financial services resilience. The market absorbed 2.4x its live supply in 2023, the highest absorption ratio of any Texas submarket.",
+      key_risks: [
+        "CPS Energy interconnection queue at 3 GW creates a 14–20 month timeline risk against the 24-month delivery target — queue position must be established immediately",
+        "Municipal utility structure prevents direct PPA or competitive retail energy procurement; all rate risk sits with CPS Energy's regulatory calendar",
+        "Water-use opposition emerging; liquid-cooled deployments may face additional permitting scrutiny and 3–6 month delays in Bexar County",
+        "Carrier ecosystem is thin relative to DFW; achieving redundant diverse-path connectivity requires an active cross-connect procurement strategy",
+      ],
+      next_steps:
+        "Submit CPS Energy large-load application immediately to establish queue position ahead of further demand accumulation. Evaluate Vantage and Stream facilities for sublease or shell capacity — both have near-term availability that sidesteps the interconnection queue. Request Bexar County economic development pre-consultation to scope HB 5 eligibility and 380 Agreement structure. If liquid cooling is in scope, engage the Bexar County water authority early to pre-empt permitting friction before site selection locks.",
+    },
+    {
+      rank: 3,
+      market_name: "Houston",
+      overall_viability: "moderate",
+      power: {
+        summary:
+          "Deregulated ERCOT market with CenterPoint Energy as the transmission and distribution provider. Wholesale power costs are competitive at $0.034–0.040/kWh, but CenterPoint's distribution infrastructure sustained significant damage in Hurricane Beryl (July 2024), with some commercial customers experiencing 7–14 day outages. CenterPoint's $6B infrastructure recovery and resilience filing with PUCT (Aug 2024) outlines improvement timelines through 2027, but near-term distribution reliability is below DFW standard. On-site generation sized for 72-hour islanded operation is effectively required. ERCOT South Hub nodal pricing is historically more volatile during summer peaks than NRTH Hub; energy cost hedging is necessary for predictable OpEx.",
+        signal: "mixed",
+      },
+      community_sentiment: {
+        summary:
+          "Industrial culture broadly accepts large-load infrastructure, and the Port of Houston economic development arm actively recruits tech investment. However, environmental advocacy is more active in Harris County than other Texas markets: Air Alliance Houston and Texas Campaign for the Environment have engaged in recent industrial permit proceedings. Two proposed data center campuses near residential corridors in Katy and Pearland faced community opposition in 2023, leading to redesigns that delayed timelines by 4–6 months. Sites in established industrial zones — the Northwest Houston corridor, Greens Road, and Beltway 8 — avoid this friction entirely.",
+        signal: "mixed",
+      },
+      tax_and_incentives: {
+        summary:
+          "Harris County participates in HB 5 appraised value limitations and Houston offers Chapter 380 agreements, but incentive packages are less developed than in DFW or San Antonio. Houston's economic development focus skews toward energy sector, manufacturing, and port logistics; data center-specific agreements require more negotiation groundwork. Some operators have successfully negotiated property tax abatements through the Houston-Galveston Area Council, but timelines are longer and outcomes less predictable. The Texas Data Center Exemption applies. Net incentive value estimated at $2–4M over 10 years for a 5 MW deployment — the weakest incentive environment of the three recommended markets.",
+        signal: "moderate_incentives",
+      },
+      natural_hazards: {
+        summary:
+          "Elevated risk profile relative to other Texas markets. Hurricane exposure is material: Category 3+ storms make direct landfall within 150 miles of Houston every 8–12 years on average; Beryl (2024), Harvey (2017), and Ike (2008) each caused significant infrastructure disruption. Flooding is the primary data center risk — Harris County carries the highest FEMA flood claim density in the US. Site selection must target locations above the 500-year flood plain; northwest corridors (Cypress, Katy, north Fort Bend County) meet this standard while low-lying areas near the Ship Channel and Galveston Bay do not. Total site hardening cost premium vs. DFW estimated at $2–4M for a 5 MW facility.",
         signal: "moderate_risk",
       },
       connectivity:
-        "San Antonio has multiple fiber routes along I-10 and I-35. AT&T, Zayo, and Lumen all provide diverse routes. Connectivity is adequate but thinner than Phoenix or Columbus for network-critical workloads. Latency to Dallas under 5ms, Austin under 3ms.",
+        "Strongest international connectivity of any Texas market. HOUIX (Houston Internet Exchange) provides free multilateral peering with 60+ networks. Houston is the US terminus for multiple subsea cable systems serving Latin America — AMX-1, ARCOS, and SAm-1 — providing low-latency paths to Mexico City (22 ms), Bogotá (48 ms), and São Paulo (105 ms). 49 operational data centers; Zayo, Windstream, and AT&T maintain dense metro rings. Carrier count (35 major PoPs) is below DFW but above San Antonio. Cloud connectivity available via Azure South Central US and AWS us-east-2 edge. HOUIX traffic grew 34% YoY as streaming and gaming operators expanded Latin American PoPs.",
       recent_activity:
-        "Amazon AWS opened a 200MW campus in 2022. Iron Mountain acquired a 50MW colocation asset in 2023. CPS Energy launched a Flex Power program for large industrial customers following Uri. Activity is growing but the market is less saturated than Phoenix.",
+        "CloudHQ announced a 72 MW campus in Northwest Houston (Q4 2023). Compass Data Centers expanded its Greens Road facility by 24 MW (Jan 2024). CenterPoint filed its $6B infrastructure recovery plan with PUCT following Hurricane Beryl (Aug 2024). Sabey Data Centers acquired a 40-acre greenfield site in Katy with 200 MW planned capacity. HOUIX recorded its highest-ever traffic volumes in Q3 2024, driven by Latin American streaming and AI inference workloads.",
       key_risks: [
-        "ERCOT interconnection timeline of 28–36 months likely exceeds the 24-month grid-ready requirement without extraordinary CPS TechQ prioritization",
-        "ERCOT grid reliability risk during weather extremes; on-site generation or battery backup at scale required for Tier III+ uptime",
-        "Investment thresholds for Texas sales tax exemption may require phased commitment documentation",
+        "CenterPoint grid resilience degraded post-Beryl; on-site generation requirement adds $1.5–2.5M to facility CapEx for a 5 MW build",
+        "Flood risk demands premium site selection — 500-year flood plain parcels command a 20–30% land cost premium over 100-year sites, and due diligence must include FEMA FIRM map review",
+        "Environmental permitting in Harris County may extend development timelines by 3–6 months versus DFW, particularly for sites with stormwater management complexity",
+        "ERCOT South Hub summer price spikes create OpEx variability; unhedged energy exposure could increase annual power costs by 15–25% in extreme heat years",
       ],
       next_steps:
-        "Request a formal large-load feasibility study from CPS Energy to determine whether TechQ prioritization can compress the interconnection timeline to 24 months. If timeline cannot be confirmed within 60 days, deprioritize in favor of Phoenix or Columbus. Obtain flood plain maps for candidate South Side parcels.",
+        "Restrict initial site search to northwest Harris County and Fort Bend County corridors above the 500-year flood plain. Spec on-site generation at 72-hour islanded capacity before issuing the RFP. Engage HOUIX directly — co-location within an HOUIX-connected facility captures the Latin American connectivity premium that differentiates Houston from DFW and San Antonio. Issue parallel RFPs to CenterPoint and ERCOT REPs to model delivered energy cost under hedged and spot pricing scenarios before committing to a site.",
     },
   ],
 
   markets_to_avoid: [
     {
-      market_name: "Las Vegas Metro",
+      market_name: "Austin",
       reason:
-        "NV Energy's large-load queue is fully subscribed through 2027 with hyperscale commitments from Google, Microsoft, and Switch. No viable path to 50MW energization within 24 months. Extreme heat (120°F design days) combined with severe water scarcity makes the market unattractive for new entrants at this time.",
-    },
-    {
-      market_name: "California (Inland Empire)",
-      reason:
-        "CAISO interconnection timelines averaging 4+ years for new large loads. State utility regulatory environment has imposed large-load moratoria in several SCE and PG&E service territories. High construction labor costs and state property tax exposure erode the incentive stack. Not viable for a 24-month timeline.",
+        "Austin Energy's regulated monopoly structure makes this market unviable for large-load data center deployment at current economics. Effective commercial rates run $0.057–0.063/kWh — 55–70% above the DFW deregulated average — with no mechanism for competitive rate negotiation or direct renewable PPA. Large-load interconnection queues currently exceed 18 months with no priority pathway for data centers. The Austin City Council's 2023 resolution directing Austin Energy to study data center load caps introduces active regulatory risk: facilities approved today could face surcharges or curtailment orders before the end of their first lease term. Despite Austin's tech ecosystem, talent density, and 44 existing facilities, power cost alone makes a 5 MW facility operationally uncompetitive against DFW or San Antonio, and the 24-month delivery target is not achievable under current queue conditions.",
     },
   ],
 
-  methodology_note:
-    "This dossier was produced by the SiteScope AI research agent using public sources including utility commission filings, state legislative records, county assessor data, and industry reporting. Power availability assessments reflect publicly disclosed utility programs and interconnection queue data as of Q1 2024. Incentive structures are subject to annual legislative change and project-specific negotiation. This analysis should be treated as an initial screening tool; site-specific due diligence, utility load studies, and legal review are required before any capital commitment.",
   dimension_weights: { power: 5, community: 3, tax: 2, hazards: 2 },
 };

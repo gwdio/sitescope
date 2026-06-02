@@ -161,7 +161,9 @@ export default function DossierView({ dossier, requirements, isDemo, onRunLive }
             margin: 0,
           }}
         >
-          {dossier.methodology_note}
+          {isDemo
+            ? "Pre-generated demo data — all figures, operator names, and market signals are illustrative and not sourced from a live research run."
+            : "Research conducted via Subconscious AI using web search, news search, and company intelligence tools. Power pricing, incentive valuations, and timeline estimates are illustrative and should be verified with local counsel and utility providers before site selection decisions."}
         </p>
       </footer>
     </div>

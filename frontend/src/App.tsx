@@ -42,8 +42,19 @@ export default function App() {
     setElapsed(0);
   }
 
-  function handleDemo(): void {
+  async function handleDemo(): Promise<void> {
     setIsDemo(true);
+    setElapsed(0);
+    setView("loading");
+
+    const start = Date.now();
+    timerRef.current = setInterval(() => {
+      setElapsed(Math.floor((Date.now() - start) / 1000));
+    }, 1000);
+
+    await new Promise<void>((resolve) => setTimeout(resolve, 5000));
+
+    stopTimer();
     setDossier(MOCK_DOSSIER);
     setView("dossier");
   }
