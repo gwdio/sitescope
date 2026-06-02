@@ -1,21 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
 import { runScreening, validateApiKey } from "./lib/api";
 import type { Dossier } from "./lib/types";
-import { MOCK_DOSSIER } from "./lib/mockData";
+import { MOCK_DOSSIER, MOCK_QUERY } from "./lib/mockData";
+import { MOCK_DOSSIER_2, MOCK_QUERY_2 } from "./lib/mockData2";
 import InputView from "./components/InputView";
 import LoadingView from "./components/LoadingView";
 import DossierView from "./components/DossierView";
-
-const DEMO_TEXT =
-  "50MW hyperscale facility. US Sun Belt or Midwest. Grid-ready within 24 months. AI training and inference workload at 40-50kW per rack. Power availability and speed-to-energize are the top priorities, followed by community receptiveness, then tax incentives. Prefer low water dependency. Renewable energy access is a plus but not required.";
+import DemoSelectView from "./components/DemoSelectView";
 
 const LS_KEY = "sitescope_api_key";
 
-type AppState = "input" | "loading" | "dossier";
+type AppState = "input" | "demo-select" | "loading" | "dossier";
 
 export default function App() {
   const [view, setView] = useState<AppState>("input");
-  const [requirements, setRequirements] = useState(DEMO_TEXT);
+  const [requirements, setRequirements] = useState(MOCK_QUERY);
   const [apiKey, setApiKey] = useState(() => localStorage.getItem(LS_KEY) ?? "");
   const [dossier, setDossier] = useState<Dossier | null>(null);
   const [isDemo, setIsDemo] = useState(false);
@@ -42,8 +41,16 @@ export default function App() {
     setElapsed(0);
   }
 
-  async function handleDemo(): Promise<void> {
+  function handleDemo(): void {
+    setView("demo-select");
+  }
+
+  async function handleDemoSelect(which: 1 | 2): Promise<void> {
+    const mockDossier = which === 1 ? MOCK_DOSSIER : MOCK_DOSSIER_2;
+    const mockQuery = which === 1 ? MOCK_QUERY : MOCK_QUERY_2;
+
     setIsDemo(true);
+    setRequirements(mockQuery);
     setElapsed(0);
     setView("loading");
 
@@ -55,7 +62,7 @@ export default function App() {
     await new Promise<void>((resolve) => setTimeout(resolve, 5000));
 
     stopTimer();
-    setDossier(MOCK_DOSSIER);
+    setDossier(mockDossier);
     setView("dossier");
   }
 
@@ -105,6 +112,14 @@ export default function App() {
     }
   }
 
+  if (view === "demo-select") {
+    return (
+      <DemoSelectView
+        onSelect={handleDemoSelect}
+        onBack={() => setView("input")}
+      />
+    );
+  }
   if (view === "loading") {
     return (
       <LoadingView
