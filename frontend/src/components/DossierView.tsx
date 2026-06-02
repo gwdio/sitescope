@@ -7,6 +7,7 @@ export interface DossierViewProps {
   dossier: Dossier;
   requirements: string;
   isDemo?: boolean;
+  onHome?: () => void;
   onRunLive?: () => void;
 }
 
@@ -14,7 +15,7 @@ function truncate(s: string, max: number): string {
   return s.length > max ? s.slice(0, max) + "…" : s;
 }
 
-export default function DossierView({ dossier, requirements, isDemo, onRunLive }: DossierViewProps): React.JSX.Element {
+export default function DossierView({ dossier, requirements, isDemo, onHome, onRunLive }: DossierViewProps): React.JSX.Element {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const market = dossier.candidate_markets[selectedIndex];
 
@@ -83,8 +84,14 @@ export default function DossierView({ dossier, requirements, isDemo, onRunLive }
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
-          <span
+          <button
+            type="button"
+            onClick={onHome}
             style={{
+              background: "none",
+              border: "none",
+              padding: 0,
+              cursor: onHome ? "pointer" : "default",
               fontFamily: "var(--font-mono)",
               fontSize: 14,
               fontWeight: 600,
@@ -92,7 +99,7 @@ export default function DossierView({ dossier, requirements, isDemo, onRunLive }
             }}
           >
             SiteScope
-          </span>
+          </button>
           <div
             style={{
               width: 1,

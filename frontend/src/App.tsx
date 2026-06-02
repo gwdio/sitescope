@@ -10,7 +10,8 @@ import DemoSelectView from "./components/DemoSelectView";
 
 const LS_KEY = "sitescope_api_key";
 
-type AppState = "input" | "demo-select" | "loading" | "dossier";
+type NavView = "input" | "demo-select" | "dossier";
+type AppState = NavView | "loading";
 
 export default function App() {
   const [view, setView] = useState<AppState>("input");
@@ -31,18 +32,43 @@ export default function App() {
     }
   }
 
-  useEffect(() => () => { stopTimer(); abortRef.current?.abort(); }, []);
+  function navigateTo(v: NavView): void {
+    window.history.pushState({ view: v }, "");
+    setView(v);
+  }
+
+  // Seed initial history entry and wire up popstate for back/forward.
+  useEffect(() => {
+    window.history.replaceState({ view: "input" }, "");
+
+    function onPopState(e: PopStateEvent): void {
+      const v = e.state?.view as NavView | undefined;
+      if (!v) return;
+      abortRef.current?.abort();
+      stopTimer();
+      setThinking("");
+      setElapsed(0);
+      setView(v);
+    }
+
+    window.addEventListener("popstate", onPopState);
+    return () => {
+      window.removeEventListener("popstate", onPopState);
+      stopTimer();
+      abortRef.current?.abort();
+    };
+  }, []);
 
   function handleCancel(): void {
     abortRef.current?.abort();
     stopTimer();
-    setView("input");
     setThinking("");
     setElapsed(0);
+    navigateTo("input");
   }
 
   function handleDemo(): void {
-    setView("demo-select");
+    navigateTo("demo-select");
   }
 
   async function handleDemoSelect(which: 1 | 2): Promise<void> {
@@ -54,16 +80,28 @@ export default function App() {
     setElapsed(0);
     setView("loading");
 
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     const start = Date.now();
     timerRef.current = setInterval(() => {
       setElapsed(Math.floor((Date.now() - start) / 1000));
     }, 1000);
 
-    await new Promise<void>((resolve) => setTimeout(resolve, 5000));
-
-    stopTimer();
-    setDossier(mockDossier);
-    setView("dossier");
+    try {
+      await new Promise<void>((resolve, reject) => {
+        const t = setTimeout(resolve, 5000);
+        controller.signal.addEventListener("abort", () => {
+          clearTimeout(t);
+          reject(new DOMException("Aborted", "AbortError"));
+        });
+      });
+      stopTimer();
+      setDossier(mockDossier);
+      navigateTo("dossier");
+    } catch (err) {
+      stopTimer();
+    }
   }
 
   function handleForgetKey(): void {
@@ -103,12 +141,12 @@ export default function App() {
       stopTimer();
       setIsDemo(false);
       setDossier(result);
-      setView("dossier");
+      navigateTo("dossier");
     } catch (err) {
       stopTimer();
       if ((err as Error).name === "AbortError") return;
       setError(err instanceof Error ? err.message : "Unknown error");
-      setView("input");
+      navigateTo("input");
     }
   }
 
@@ -116,7 +154,7 @@ export default function App() {
     return (
       <DemoSelectView
         onSelect={handleDemoSelect}
-        onBack={() => setView("input")}
+        onBack={() => navigateTo("input")}
       />
     );
   }
@@ -135,7 +173,8 @@ export default function App() {
         dossier={dossier}
         requirements={requirements}
         isDemo={isDemo}
-        onRunLive={() => setView("input")}
+        onHome={() => navigateTo("input")}
+        onRunLive={() => navigateTo("input")}
       />
     );
   }
